@@ -142,7 +142,7 @@ PIXI.Loader.shared
 let game_over = false;
 let total_cycles = 0;
 let total_pieces = 0;
-let gravity_interval = 60;
+let gravity_interval = 40;
 let rotates = 0;
 let cleared_lines = [];
 
@@ -199,6 +199,7 @@ function update(delta) {
     switch (event.key) {
         case ' ':
             //console.log("space pressed");
+            input[0] = 1;
             break;
         
         case 's':
@@ -240,6 +241,13 @@ function update(delta) {
    total_cycles++;
     
    //Piece movement
+        if (input[0]){
+            while(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x, current_piece_y + 1)){
+                current_piece_y += 1;
+                //console.log("left pressed");
+            }
+            input[0] = 0;
+        }
         if(input[1]){
             if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x, current_piece_y + 1)){
                 current_piece_y += 1;
@@ -406,6 +414,13 @@ function draw_pieces() {
     }
     
     erase_current_piece(); 
+}
+
+function Lerp(start_value, end_value, pct)
+{
+    setTimeout(function(){
+        return (start_value + (end_value - start_value) * pct);
+    }, 500);
 }
 
 function draw_current_piece() {
