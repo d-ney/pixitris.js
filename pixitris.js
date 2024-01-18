@@ -86,6 +86,7 @@ const tetrominos = [
 
 function rotate(x, y, r) {
 
+    if(r < 1) r *= -1;
     switch(r % 4) {
 
         case 0: return 4*y + x; //0 degrees
@@ -270,8 +271,7 @@ function update(delta) {
             }
         }
         if(input[4]){
-           current_rotation_index += check_piece_collision(current_piece_index, current_rotation_index + 1, current_piece_x, current_piece_y);
-           console.log(current_rotation_index);
+           current_rotation_index = current_rotation_index + (check_piece_collision(current_piece_index, current_rotation_index + 1, current_piece_x, current_piece_y) || 3 * check_piece_collision(current_piece_index, current_rotation_index + 3, current_piece_x, current_piece_y));
            input[4] = 0;
         }
 
