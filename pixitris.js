@@ -3,10 +3,10 @@
 //Create a Pixi Application
 const options = {
     backgroundColor: 0xFFE6DB,
-    width: 600,
-    height: 800,
-    resolution: window.devicePixelRatio,
     resizeTo: window,
+    //resolution: window.devicePixelRatio || 1,
+    autoDensity: false,
+
 
 }
 
@@ -18,7 +18,25 @@ app.ticker.add(update);
 window.addEventListener("keydown", this.downHandler, false);
 
 const field_width = 12;
-const field_height = 24;
+const field_height = 22;
+
+let screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+let screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+let scale = Math.min(screenWidth / window.innerHeight, screenHeight / window.innerWidth);
+console.log("scale = " + scale);
+
+// listen for the browser telling us that the screen size changed
+window.addEventListener("resize", resize());
+
+function resize() {
+    app.resize(screenWidth, screenHeight);
+     // current screen size
+      screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+      screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+     // uniform scale for our game
+      scale = Math.min(screenWidth / window.innerHeight, screenHeight / window.innerWidth);
+}
 
 let block_queue = [];
 
@@ -151,11 +169,10 @@ let stashed_piece = -1;
 let stashed_this_turn = 0;
 
 let score= 0;
-let score_offset_x = 540;
-let score_offset_y = 90;
+let score_offset_x = 7* screenHeight/8;
+let score_offset_y = screenHeight/8;
 
 let score_text = new PIXI.Text(score,{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'right'});
-score_text.position.x = field_width - 100;
 app.stage.addChild(score_text);
 
 let current_piece_index = Math.floor(Math.random()  * 100) % 7;
@@ -174,10 +191,11 @@ function setup() {
 
    // draw static elements of the playing field
    const bg = PIXI.Sprite.from('assets/bg.png');
-   bg.anchor.set(0.5);
-   bg.x = app.screen.width / 2;
-   bg.y = app.screen.height / 2;
-   bg.scale.set(0.25);
+   //bg.anchor.set(0.5);
+   bg.x =  screenWidth / 3;
+   bg.y = screenHeight / 8;
+   console.log( "scale = " + scale);
+   bg.scale.set(0.25 * scale);
 
 //    const block = PIXI.Sprite.from('assets/block/block.png');
 //    block.anchor.set(0.5);
@@ -389,10 +407,9 @@ function render() {
     //Add the canvas that Pixi automatically created for you to the HTML document
     // document.body.appendChild(app.view);
     // app.renderer.backgroundColor = 0x061639;
-     app.renderer.view.style.position = "relative";
+     //app.renderer.view.style.position = "relative";
      app.renderer.view.style.display = "block";
-     app.renderer.autoDensity = true;
-     app.resizeTo = window;
+
 
    // print_field();
     draw_pieces();
@@ -403,7 +420,7 @@ function render() {
 function update_score() {
     
     app.stage.removeChild(score_text);
-    score_text = new PIXI.Text(score,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'center'});  
+    score_text = new PIXI.Text(score,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'right'});  
     score_text.position.x = score_offset_x;
     score_text.position.y = score_offset_y;  
     //console.log(score);
@@ -411,8 +428,8 @@ function update_score() {
 }
 
 function draw_pieces() {
-    let x_offset = 202.75;
-    let y_offset = 177;
+    let x_offset = screenWidth / 3;
+    let y_offset = screenHeight / 8;
 
     block_queue.forEach(block => {
         app.stage.removeChild(block);
@@ -422,16 +439,15 @@ function draw_pieces() {
 
     for(let x = 1; x < field_width - 1; x++) {
         for(let y = 1; y < field_height - 1; y++) {
-            if(field[(y * field_width + x)] != -1) {
-
+            if(field[y*field_width + x] !=-1) {
                 let block = PIXI.Sprite.from('assets/block/block.png');
                 block.alpha = 0.75;
 
                 block_queue.push(block);
-                block.anchor.set(0.5);
-                block.scale.set(0.15);
-                block.x = x*24 + x_offset;
-                block.y = y*24 + y_offset;
+                //block.anchor.set(0.5);
+                block.scale.set(0.25 * scale);
+                block.x = (x-1)*30*scale + x_offset;
+                block.y = (y-1)*30*scale + y_offset;
 
                 app.stage.addChild(block);
                 //console.log("block x: " + x + ", y: " + y);
@@ -476,6 +492,7 @@ function print_field() {
     console.log(c_field);
     erase_current_piece();
 }
+
 
 
 
