@@ -147,6 +147,9 @@ let gravity_interval = 40;
 let rotates = 0;
 let cleared_lines = [];
 
+let stashed_piece = -1;
+let stashed_this_turn = 0;
+
 let score= 0;
 let score_offset_x = 540;
 let score_offset_y = 90;
@@ -155,7 +158,7 @@ let score_text = new PIXI.Text(score,{fontFamily : 'Arial', fontSize: 24, fill :
 score_text.position.x = field_width - 100;
 app.stage.addChild(score_text);
 
-let current_piece_index = Math.floor(Math.random()  * 100) % 6;
+let current_piece_index = Math.floor(Math.random()  * 100) % 7;
 let current_rotation_index = 0;
 let current_piece_x = field_width / 2 - 2; //represents default position where pieces will be spawned
 let current_piece_y = 1;
@@ -218,10 +221,12 @@ function update(delta) {
             break;
         case 'r':
             input[4] = 1;
-            //console.log("rotate pressed");
+            console.log("rotate pressed");
             break;
-        case 'q':
-            //console.log("stash piece pressed");
+        case 'e':
+            input[5] = 1;
+            console.log("stash piece pressed");
+            break;
         case 27:
             //console.log("escape pressed");
             break;
@@ -231,8 +236,6 @@ function update(delta) {
 
 //LOGIC===========================================
 
-    //if(app.ticker.deltaMs == 1000) console.log('tick');
-   // console.log(1 / 60 * delta );
 
    if(game_over) {
         app.stop();
@@ -273,6 +276,27 @@ function update(delta) {
         if(input[4]){
            current_rotation_index = current_rotation_index + (check_piece_collision(current_piece_index, current_rotation_index + 1, current_piece_x, current_piece_y) || 3 * check_piece_collision(current_piece_index, current_rotation_index + 3, current_piece_x, current_piece_y));
            input[4] = 0;
+        }
+        if(input[5] && !stashed_this_turn){
+           console.log("in stash piece");
+
+           console.log("stash piece = " + stashed_piece + ", current piece = " + current_piece_index);
+           
+           let temp_index = stashed_piece;
+
+           if(temp_index == -1)
+            temp_index = Math.floor(Math.random() * 100) % 7;
+
+           stashed_piece = current_piece_index;
+           current_piece_index = temp_index;
+           stashed_this_turn = 1;
+
+           current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
+           current_piece_y = 1;
+           current_rotation_index = 0;
+            
+            
+           input[5] = 0;
         }
 
     
@@ -337,17 +361,19 @@ function update(delta) {
           }
           
           //choose the next piece,
+          current_piece_index = Math.floor(Math.random()  * 100) % 7;
+
           current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
           current_piece_y = 1;
           current_rotation_index = 0;
-          current_piece_index = Math.floor(Math.random()  * 100) % 7;
           
 
           //and check for game over if appropriate.
           game_over = !(check_piece_collision(current_piece_index, current_rotation_index,
                                                             current_piece_x, current_piece_y));
     
-
+          //reset flags
+          stashed_this_turn = 0;
         }
 
 
@@ -380,7 +406,7 @@ function update_score() {
     score_text = new PIXI.Text(score,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'center'});  
     score_text.position.x = score_offset_x;
     score_text.position.y = score_offset_y;  
-    console.log(score);
+    //console.log(score);
     app.stage.addChild(score_text);
 }
 
@@ -416,12 +442,6 @@ function draw_pieces() {
     erase_current_piece(); 
 }
 
-function Lerp(start_value, end_value, pct)
-{
-    setTimeout(function(){
-        return (start_value + (end_value - start_value) * pct);
-    }, 500);
-}
 
 function draw_current_piece() {
     for(let x = 0; x < 4; x++) {
