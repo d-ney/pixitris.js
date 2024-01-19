@@ -169,7 +169,7 @@ let stashed_piece = -1;
 let stashed_this_turn = 0;
 
 let score= 0;
-let score_offset_x = 7* screenHeight/8;
+let score_offset_x = 11* screenHeight/16;
 let score_offset_y = screenHeight/8;
 
 let score_text = new PIXI.Text(score,{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'right'});
