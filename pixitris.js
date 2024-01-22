@@ -278,7 +278,6 @@ function update(delta) {
 
    if(game_over) {
         if(score > highscore) localStorage.setItem("highscore", score);    
-        console.log("game over! final score: " +  localStorage.getItem("highscore"));
         app.stop();
    }
 
