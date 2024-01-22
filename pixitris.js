@@ -182,9 +182,16 @@ let stashed_this_turn = 0;
 let score= 0;
 let score_offset_x = 3*(screenWidth + scale)/4;
 let score_offset_y = screenHeight/8;
+let highscore = localStorage.getItem("highscore");
+if(highscore == null) localStorage.setItem("highscore", 0);
+console.log(highscore);
+
 
 let score_text = new PIXI.Text(score,{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'right'});
 app.stage.addChild(score_text);
+
+let highscore_text = new PIXI.Text(highscore,{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'right'});
+app.stage.addChild(highscore_text);
 
 let current_piece_index = Math.floor(Math.random()  * 100) % 7;
 let current_rotation_index = 0;
@@ -270,8 +277,9 @@ function update(delta) {
 
 
    if(game_over) {
+        if(score > highscore) localStorage.setItem("highscore", score);    
+        console.log("game over! final score: " +  localStorage.getItem("highscore"));
         app.stop();
-        console.log("game over! final score: " + score);
    }
 
    total_cycles++;
@@ -310,7 +318,7 @@ function update(delta) {
            input[4] = 0;
         }
         if(input[5]) {
-         if(stashed_this_turn){
+         if(!stashed_this_turn){
            console.log("in stash piece");
 
            console.log("stash piece = " + stashed_piece + ", current piece = " + current_piece_index);
@@ -327,10 +335,9 @@ function update(delta) {
            current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
            current_piece_y = 1;
            current_rotation_index = 0;
-            
-        }  
+            }  
            input[5] = 0;
-    }
+        }   
 
     
     //every time the total update cycle equals the interval decided by the game's current difficulty,
@@ -437,9 +444,20 @@ function update_score() {
     app.stage.removeChild(score_text);
     score_text = new PIXI.Text(score,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'right'});  
     score_text.position.x = score_offset_x;
-    score_text.position.y = score_offset_y;  
+    score_text.position.y = 2*score_offset_y;  
     //console.log(score);
     app.stage.addChild(score_text);
+
+    app.stage.removeChild(highscore_text);
+    highscore_text = new PIXI.Text(highscore,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'right'});  
+    highscore_text.position.x = score_offset_x;
+    highscore_text.position.y = score_offset_y;  
+    //console.log(score);
+    app.stage.addChild(highscore_text);
+
+    
+
+    
 }
 
 function draw_pieces() {
@@ -451,23 +469,13 @@ function draw_pieces() {
     });
 
     draw_current_piece();
+    let count = 0;
 
     for(let x = 1; x < field_width - 1; x++) {
         for(let y = 1; y < field_height - 1; y++) {
             if(field[y*field_width + x] !=-1) {
-
                 let block = choose_block_sprite(field[y*field_width + x]);//PIXI.Sprite.from('assets/block/block.png');
-                // console.log(field[y*field_width + x]);
-                // switch (field[y*field_width + x]) {
-                //     case 1: PIXI.Sprite.from('assets/block/block_g.png',);
-                //     break;
-
-                //     case 2: PIXI.Sprite.from('assets/block/block_g.png',);
-                //     break;
-
-                //     case 3: PIXI.Sprite.from('assets/block/block_g.png',);
-                //     break;
-                // }
+               
                 block.alpha = 0.75;
 
                 block_queue.push(block);
@@ -477,6 +485,21 @@ function draw_pieces() {
                 block.y = (y-1)*30*scale + y_offset;
 
                 app.stage.addChild(block);
+                
+               
+
+                if(count > 3) {
+                    let smiley = PIXI.Sprite.from('assets/smiley.png');
+                    smiley.x = block.x;
+                    smiley.y = block.y;
+                    smiley.alpha = 0.45;
+                    smiley.scale.set(0.25 * scale);
+                    app.stage.addChild(smiley);
+                    block_queue.push(smiley);
+                    count = 0;
+                }
+                count++;
+
                 //console.log("block x: " + x + ", y: " + y);
             }
         }
