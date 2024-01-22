@@ -1,21 +1,24 @@
-
-
 //Create a Pixi Application
 const options = {
     backgroundColor: 0xFFE6DB,
     resizeTo: window,
-    //resolution: window.devicePixelRatio || 1,
-    autoDensity: false,
-
-
+    resolution: window.devicePixelRatio || 1,
+    autoDensity: true,
+    eventMode: 'passive'
 }
+
 
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 const app = new PIXI.Application(options);
 
+//var target = new PIXI.DisplayObjectContainer();
+//target.setInteractive(true);
+//app.stage.addChild(target);
+
+
 document.body.appendChild(app.view);
 app.ticker.add(update);
-window.addEventListener("keydown", this.downHandler, false);
+
 
 const field_width = 12;
 const field_height = 22;
@@ -24,6 +27,14 @@ let screenWidth = Math.max(document.documentElement.clientWidth, window.innerWid
 let screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 let scale = Math.min(screenWidth / window.innerHeight, screenHeight / window.innerWidth);
 console.log("scale = " + scale);
+
+const bounding_box = new PIXI.Graphics();
+bounding_box.beginFill(0xFFFFFF);
+bounding_box.drawRect(0, 0, screenWidth, screenHeight);
+bounding_box.endFill();
+bounding_box.alpha = 0;
+bounding_box.interactive = true;
+app.stage.addChild(bounding_box);
 
 // listen for the browser telling us that the screen size changed
 window.addEventListener("resize", resize());
@@ -169,7 +180,7 @@ let stashed_piece = -1;
 let stashed_this_turn = 0;
 
 let score= 0;
-let score_offset_x = 11* screenHeight/16;
+let score_offset_x = 3*(screenWidth + scale)/4;
 let score_offset_y = screenHeight/8;
 
 let score_text = new PIXI.Text(score,{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'right'});
@@ -239,11 +250,11 @@ function update(delta) {
             break;
         case 'r':
             input[4] = 1;
-            console.log("rotate pressed");
+            //console.log("rotate pressed");
             break;
         case 'e':
             input[5] = 1;
-            console.log("stash piece pressed");
+            //console.log("stash piece pressed");
             break;
         case 27:
             //console.log("escape pressed");
@@ -251,6 +262,9 @@ function update(delta) {
     }
     
     })
+
+    bounding_box.on("pointerdown", () => {input[4] = 1});
+
 
 //LOGIC===========================================
 
@@ -411,7 +425,7 @@ function render() {
      app.renderer.view.style.display = "block";
 
 
-   // print_field();
+    //print_field();
     draw_pieces();
     update_score();
    // draw_current_piece();
@@ -440,7 +454,19 @@ function draw_pieces() {
     for(let x = 1; x < field_width - 1; x++) {
         for(let y = 1; y < field_height - 1; y++) {
             if(field[y*field_width + x] !=-1) {
-                let block = PIXI.Sprite.from('assets/block/block.png');
+
+                let block = choose_block_sprite(field[y*field_width + x]);//PIXI.Sprite.from('assets/block/block.png');
+                // console.log(field[y*field_width + x]);
+                // switch (field[y*field_width + x]) {
+                //     case 1: PIXI.Sprite.from('assets/block/block_g.png',);
+                //     break;
+
+                //     case 2: PIXI.Sprite.from('assets/block/block_g.png',);
+                //     break;
+
+                //     case 3: PIXI.Sprite.from('assets/block/block_g.png',);
+                //     break;
+                // }
                 block.alpha = 0.75;
 
                 block_queue.push(block);
@@ -456,6 +482,27 @@ function draw_pieces() {
     }
     
     erase_current_piece(); 
+}
+
+function choose_block_sprite(block_type) {
+    switch(block_type) {
+        case 0: return new PIXI.Sprite.from('assets/block/block_g.png',);
+
+        case 1: return new PIXI.Sprite.from('assets/block/block_p.png',);
+
+        case 2: return new PIXI.Sprite.from('assets/block/block_r.png',);
+
+        case 3: return new PIXI.Sprite.from('assets/block/block_db.png',);
+
+        case 4: return new PIXI.Sprite.from('assets/block/block_l.png',);
+
+        case 5: return new PIXI.Sprite.from('assets/block/block_pi.png',);
+
+        case 6: return new PIXI.Sprite.from('assets/block/block_o.png',);
+    }
+
+    return new PIXI.Sprite.from('assets/block/block.png');
+
 }
 
 
