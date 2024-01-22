@@ -309,7 +309,8 @@ function update(delta) {
            current_rotation_index = current_rotation_index + (check_piece_collision(current_piece_index, current_rotation_index + 1, current_piece_x, current_piece_y) || 3 * check_piece_collision(current_piece_index, current_rotation_index + 3, current_piece_x, current_piece_y));
            input[4] = 0;
         }
-        if(input[5] && !stashed_this_turn){
+        if(input[5]) {
+         if(stashed_this_turn){
            console.log("in stash piece");
 
            console.log("stash piece = " + stashed_piece + ", current piece = " + current_piece_index);
@@ -327,9 +328,9 @@ function update(delta) {
            current_piece_y = 1;
            current_rotation_index = 0;
             
-            
+        }  
            input[5] = 0;
-        }
+    }
 
     
     //every time the total update cycle equals the interval decided by the game's current difficulty,
