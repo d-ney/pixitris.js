@@ -4,12 +4,13 @@ const options = {
     resizeTo: window,
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
-    eventMode: 'passive'
+
 }
 
 
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 const app = new PIXI.Application(options);
+app.renderer.view.style.display = "block";
 
 //var target = new PIXI.DisplayObjectContainer();
 //target.setInteractive(true);
@@ -50,13 +51,14 @@ function resize() {
 }
 
 let block_queue = [];
+let smiley_queue = [];
 
 let field = Array(field_width+1 * (field_height+1));
 for(let x = 0; x < field_width; x++)
     for(y = 0; y < field_height; y++)
         field[x + y*field_width] = 
             ( x == 0 || x == field_width - 1
-                || y == field_height - 1 ? 9: -1 )
+                || y == field_height - 1 ? -2: -1 )
 
 //Create a constant string array to contain patterns for the six main tetronimos
 //NOTE: This array is one-dimensional. This allows the patterns in the array to be easily 'rotated' by changing the
@@ -64,32 +66,32 @@ for(let x = 0; x < field_width; x++)
 
 const tetrominos = [
                 // Larry the long tetromino
-                    "..X."+
+                    "..x."+
                     "..X."+
                     "..X."+
                     "..X.",
                 
                 // Zulu the Z tetromino
-                    "..X."+
+                    "..x."+
                     ".XX."+
                     ".X.."+
                     "....",
 
                 // Sully the S tetromino    
-                    ".X.."+
+                    ".x.."+
                     ".XX."+
                     "..X."+
                     "....",
 
                 // Stan the square tetromino
                     "...."+
-                    ".XX."+
+                    ".Xx."+
                     ".XX."+
                     "....",
 
                 //Wah the reverse L tetromino
                     "...."+
-                    ".XX."+
+                    ".xX."+
                     "..X."+
                     "..X.",
                 
@@ -97,11 +99,11 @@ const tetrominos = [
                     "...."+
                     ".X.."+
                     ".X.."+
-                    ".XX.",
+                    ".Xx.",
                     
                 //Terry the T tetromino
                     "...."+
-                    ".XXX"+
+                    ".XXx"+
                     "..X."+
                     "...."];
 
@@ -149,7 +151,7 @@ function check_piece_collision(tetr_type, curr_rotation, x_pos, y_pos) {
                     //and the field at the equivalent position is filled, then the collision check fails and we return zero.
                    
                     //console.log(tetrominos[tetr_type][tetr_index] + " " + field[field_index])
-                    if(tetrominos[tetr_type][tetr_index] == 'X' && field[field_index] != -1)                      
+                    if(tetrominos[tetr_type][tetr_index].toUpperCase() == 'X' && field[field_index] != -1)                      
                         return false; 
                 }
             }
@@ -198,7 +200,13 @@ let current_rotation_index = 0;
 let current_piece_x = field_width / 2 - 2; //represents default position where pieces will be spawned
 let current_piece_y = 1;
 
+let x_offset = screenWidth / 3;
+let y_offset = screenHeight / 8;
+
 let input = [0,0,0,0,0,0,0];
+
+let pointer_down_pos = {x:0,y:0};
+let is_dragging = false;
 
 
 
@@ -270,7 +278,59 @@ function update(delta) {
     
     })
 
-    bounding_box.on("pointerdown", () => {input[4] = 1});
+    // Create the circle
+    // const circle = app.stage.addChild(new PIXI.Graphics()
+    // .beginFill(0xffffff)
+    // .lineStyle({ color: 0x111111, alpha: 0.87, width: 1 })
+    // .drawCircle(0, 0, 8)
+    // .endFill());
+
+    //circle.position.set(app.screen.width / 2, app.screen.height / 2);
+    
+    
+    bounding_box.on("pointerdown", (pointer) => {
+       
+        pointer_down_pos = {
+            x: pointer.data.global.x,
+            y: pointer.data.global.y
+        };
+        //console.log(pointer_down_pos);
+
+       is_dragging = true;
+
+    });
+
+
+
+    bounding_box.on('pointermove', (p) => {
+
+        if(is_dragging && (Math.abs(pointer_down_pos.x - p.data.global.x) > 30)) {
+            if(pointer_down_pos.x - p.data.global.x > 0) {
+
+                console.log("move left");
+                input[2] = 1;
+                pointer_down_pos.x = p.data.global.x;
+               
+            } else
+            if((pointer_down_pos.x - p.data.global.x) < 0) {
+
+                input[3] = 1;
+                console.log("move right");
+                pointer_down_pos.x = p.data.global.x;
+            }
+
+            pointer_down_pos.x = p.data.global.x;
+        }
+            //if( pointer_down_pos.x != p.data.global.x)
+            //if(pointer_down_pos.x - p.data.global.x > 10)
+               // console.log("drag");
+    })
+    
+    bounding_box.on('pointerup', (p) => {is_dragging = false; if(Math.abs(pointer_down_pos.x - p.data.global.x) < 5) input[4] = 1; });
+
+
+
+ 
 
 
 //LOGIC===========================================
@@ -303,6 +363,7 @@ function update(delta) {
                     current_piece_x -= 1;
                     //console.log("left pressed");
                     input[2] = 0;
+                    input[4] = 0;
                 }
         }
         if(input[3]){
@@ -310,6 +371,7 @@ function update(delta) {
                 current_piece_x += 1;
                 //console.log("right pressed");
                 input[3] = 0;
+                input[4] = 0;
             }
         }
         if(input[4]){
@@ -318,9 +380,9 @@ function update(delta) {
         }
         if(input[5]) {
          if(!stashed_this_turn){
-           console.log("in stash piece");
+           //console.log("in stash piece");
 
-           console.log("stash piece = " + stashed_piece + ", current piece = " + current_piece_index);
+           //console.log("stash piece = " + stashed_piece + ", current piece = " + current_piece_index);
            
            let temp_index = stashed_piece;
 
@@ -352,6 +414,7 @@ function update(delta) {
                                                                                     
           //lock the current piece in as part of the playing field,
           draw_current_piece();
+          
 
           total_pieces += 1;
           
@@ -384,6 +447,7 @@ function update(delta) {
           score += 25;
           if(cleared_lines.length > 0) score += Math.pow(2, cleared_lines.length) * 100
         
+          //console.log(smiley_queue);
 
           if(cleared_lines.length > 0) {
             cleared_lines.forEach(line => {
@@ -396,6 +460,13 @@ function update(delta) {
                 
             });
 
+            
+             smiley_queue.forEach((smiley, index) => {
+                console.log("smiley coords: x = " + Math.floor((smiley.x+1)/(30*scale)) + ", y = " + Math.floor((smiley.y+1)/30))
+                
+                if(field[ Math.floor((smiley.x+1)/30) * field_width + Math.floor(smiley.y/30)] == -1) 
+                    app.stage.removeChild(smiley);
+             });
             cleared_lines = [];
           }
           
@@ -429,7 +500,6 @@ function render() {
     // document.body.appendChild(app.view);
     // app.renderer.backgroundColor = 0x061639;
      //app.renderer.view.style.position = "relative";
-     app.renderer.view.style.display = "block";
 
 
     //print_field();
@@ -441,14 +511,14 @@ function render() {
 function update_score() {
     
     app.stage.removeChild(score_text);
-    score_text = new PIXI.Text(score,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'right'});  
+    score_text = new PIXI.Text("SCORE: " + score,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'right'});  
     score_text.position.x = score_offset_x;
-    score_text.position.y = 2*score_offset_y;  
+    score_text.position.y = 2*score_offset_y; 
     //console.log(score);
     app.stage.addChild(score_text);
 
     app.stage.removeChild(highscore_text);
-    highscore_text = new PIXI.Text(highscore,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'right'});  
+    highscore_text = new PIXI.Text("HIGH: " + highscore,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'right'});  
     highscore_text.position.x = score_offset_x;
     highscore_text.position.y = score_offset_y;  
     //console.log(score);
@@ -460,14 +530,12 @@ function update_score() {
 }
 
 function draw_pieces() {
-    let x_offset = screenWidth / 3;
-    let y_offset = screenHeight / 8;
 
     block_queue.forEach(block => {
         app.stage.removeChild(block);
     });
 
-    draw_current_piece();
+    draw_current_piece(false);
     let count = 0;
 
     for(let x = 1; x < field_width - 1; x++) {
@@ -484,20 +552,7 @@ function draw_pieces() {
                 block.y = (y-1)*30*scale + y_offset;
 
                 app.stage.addChild(block);
-                
-               
-
-                if(count > 3) {
-                    let smiley = PIXI.Sprite.from('assets/smiley.png');
-                    smiley.x = block.x;
-                    smiley.y = block.y;
-                    smiley.alpha = 0.45;
-                    smiley.scale.set(0.25 * scale);
-                    app.stage.addChild(smiley);
-                    block_queue.push(smiley);
-                    count = 0;
-                }
-                count++;
+            
 
                 //console.log("block x: " + x + ", y: " + y);
             }
@@ -529,11 +584,14 @@ function choose_block_sprite(block_type) {
 }
 
 
-function draw_current_piece() {
+function draw_current_piece(is_locked = true) {
     for(let x = 0; x < 4; x++) {
         for(let y = 0; y < 4; y++) {
-            if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))] == 'X') {
+            if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))].toUpperCase() == 'X') {
                 field[(current_piece_y + y) * field_width + (current_piece_x + x)] = current_piece_index;
+                if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))] == 'x')
+                    draw_smiley((current_piece_x + x), ((current_piece_y + y)), is_locked);
+
             }
         }
     }
@@ -542,11 +600,28 @@ function draw_current_piece() {
 function erase_current_piece() {
     for(let x = 0; x < 4; x++) {
         for(let y = 0; y < 4; y++) {
-            if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))] == 'X') {
+            if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))].toUpperCase() == 'X') {
                 field[(current_piece_y + y) * field_width + (current_piece_x + x)] = -1;
             }
         }
     }
+}
+
+function draw_smiley( pos_x, pos_y, is_locked = true) {
+
+
+    let smiley = PIXI.Sprite.from('assets/smiley.png');
+    smiley.x = (pos_x-1)*30*scale + x_offset;
+    smiley.y = (pos_y-1)*30*scale + y_offset;
+    //smiley.alpha = 0.75;
+    smiley.scale.set(0.25 * scale);
+    app.stage.addChild(smiley);
+
+     if(!is_locked) block_queue.push(smiley)
+     else smiley_queue.push(smiley);
+    
+
+
 }
 
 function print_field() {
