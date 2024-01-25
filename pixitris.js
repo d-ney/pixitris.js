@@ -3,9 +3,9 @@ const options = {
     backgroundColor: 0xFFE6DB,
     resizeTo: window,
     //resolution: window.devicePixelRatio,
-    autoResize: true,
+    //autoResize: true,
 
-    //resolution: window.devicePixelRatio || 1,
+    resolution: window.devicePixelRatio || 1,
     autoDensity: true,
 
 }
@@ -55,7 +55,11 @@ function resize() {
       app.resize(screenWidth, screenHeight);
 
       // uniform scale for our game
-      scale = (screenWidth / window.innerHeight + screenHeight / window.innerWidth) / 2;
+      if(screenHeight > screenWidth)
+        scale = Math.max(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
+      else
+        scale = Math.min(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
+      
       x_offset *= scale;
       y_offset *= scale;
 }
@@ -109,7 +113,7 @@ const tetrominos = [
                     "...."+
                     ".Xx."+
                     ".X.."+
-                    ".X.",
+                    ".X..",
                     
                 //Terry the T tetromino
                     "...."+
@@ -498,7 +502,7 @@ function update(delta) {
           }
           
           //choose the next piece,
-          current_piece_index = Math.floor(Math.random()  * 100) % 7;
+          current_piece_index = Math.floor(Math.random()  * 100) % 6;
 
           current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
           current_piece_y = 1;
