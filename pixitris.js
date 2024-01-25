@@ -2,7 +2,10 @@
 const options = {
     backgroundColor: 0xFFE6DB,
     resizeTo: window,
-   // resolution: window.devicePixelRatio || 1,
+    resolution: window.devicePixelRatio,
+    autoResize: true,
+
+    resolution: window.devicePixelRatio || 1,
     autoDensity: true,
 
 }
@@ -29,6 +32,9 @@ let screenHeight = Math.max(document.documentElement.clientHeight, window.innerH
 let scale = Math.min(screenWidth / window.innerHeight, screenHeight / window.innerWidth);
 console.log("scale = " + scale);
 
+let x_offset = screenWidth / 2;
+let y_offset = screenHeight / 2;
+
 const bounding_box = new PIXI.Graphics();
 bounding_box.beginFill(0xFFFFFF);
 bounding_box.drawRect(0, 0, screenWidth, screenHeight);
@@ -47,7 +53,9 @@ function resize() {
       screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
      // uniform scale for our game
-      scale = ((screenWidth / window.innerHeight) +(screenHeight / window.innerWidth)) / 2;
+      scale = (screenWidth / window.innerHeight + screenHeight / window.innerWidth) / 2;
+      x_offset /= scale;
+      y_offset /= scale;
 }
 
 let block_queue = [];
@@ -200,8 +208,7 @@ let current_rotation_index = 0;
 let current_piece_x = field_width / 2 - 2; //represents default position where pieces will be spawned
 let current_piece_y = 1;
 
-let x_offset = screenWidth / 3;
-let y_offset = screenHeight / 8;
+
 
 let input = [0,0,0,0,0,0,0];
 
@@ -217,11 +224,20 @@ function setup() {
 
    // draw static elements of the playing field
    const bg = PIXI.Sprite.from('assets/bg.png');
-   //bg.anchor.set(0.5);
-   bg.x =  screenWidth / 3;
-   bg.y = screenHeight / 8;
+   bg.anchor.set(0.5);
+   bg.x =  screenWidth / 2;
+   bg.y = screenHeight / 2;
    console.log( "scale = " + scale);
    bg.scale.set(0.25 * scale);
+
+   let l = screenWidth / 2;
+   let z = screenHeight / 2;
+   let h = bg.width;
+   let w = bg.height;
+
+   x_offset = l - h/2;
+   y_offset = z - w/2;
+
 
 //    const block = PIXI.Sprite.from('assets/block/block.png');
 //    block.anchor.set(0.5);
