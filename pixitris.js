@@ -2,10 +2,10 @@
 const options = {
     backgroundColor: 0xFFE6DB,
     resizeTo: window,
-    resolution: window.devicePixelRatio,
+    //resolution: window.devicePixelRatio,
     autoResize: true,
 
-    resolution: window.devicePixelRatio || 1,
+    //resolution: window.devicePixelRatio || 1,
     autoDensity: true,
 
 }
