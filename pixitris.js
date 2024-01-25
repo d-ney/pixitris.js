@@ -233,7 +233,7 @@ function setup() {
    bg.anchor.set(0.5);
    bg.x =  screenWidth / 2;
    bg.y = screenHeight / 2;
-   console.log( "scale = " + scale);
+   //console.log( "scale = " + scale);
    bg.scale.set(0.25 * scale);
    //bg.scale.set(0.25, 0.25 * scale);
 
@@ -330,7 +330,7 @@ function update(delta) {
         if(is_dragging && (Math.abs(pointer_down_pos.x - p.data.global.x) > 60)) {
             if(pointer_down_pos.x - p.data.global.x > 0) {
 
-                console.log("move left");
+                //console.log("move left");
                 input[2] = 1;
                 pointer_down_pos.x = p.data.global.x;
                
@@ -338,7 +338,7 @@ function update(delta) {
             if((pointer_down_pos.x - p.data.global.x) < 0) {
 
                 input[3] = 1;
-                console.log("move right");
+                //console.log("move right");
                 pointer_down_pos.x = p.data.global.x;
             }
 
@@ -347,7 +347,7 @@ function update(delta) {
 
         else if(is_dragging && (Math.abs(pointer_down_pos.y - p.data.global.y) > 40)) {
             input[1] = 1;
-            console.log("move down");
+            //console.log("move down");
             pointer_down_pos.y = p.data.global.y;
         }
 
@@ -493,7 +493,7 @@ function update(delta) {
 
             
              smiley_queue.forEach((smiley, index) => {
-                console.log("smiley coords: x = " + Math.floor((smiley.x+1)/(30*scale)) + ", y = " + Math.floor((smiley.y+1)/30))
+                //console.log("smiley coords: x = " + Math.floor((smiley.x+1)/(30*scale)) + ", y = " + Math.floor((smiley.y+1)/30))
                 
                 if(field[ Math.floor((smiley.x+1)/30) * field_width + Math.floor(smiley.y/30)] == -1) 
                     app.stage.removeChild(smiley);
@@ -567,6 +567,8 @@ function draw_pieces() {
     block_queue.forEach(block => {
         app.stage.removeChild(block);
     });
+
+    block_queue = [];
 
     draw_current_piece(false);
     let count = 0;
@@ -667,7 +669,7 @@ function print_field() {
         let x = (e == -1 ? " " : e)
         c_field+=x; 
     })
-    console.log(c_field);
+    //console.log(c_field);
     erase_current_piece();
 }
 
