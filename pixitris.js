@@ -356,7 +356,7 @@ function update(delta) {
     
     app.renderer.plugins.interaction.on('pointerup', (p) => {is_dragging = false; if(Math.abs(pointer_down_pos.x - p.data.global.x) < 2) input[4] = 1; });
 
-
+    app.renderer.plugins.interaction.on('pointerout', (p) => {is_dragging = false; if(Math.abs(pointer_down_pos.x - p.data.global.x) < 2) input[4] = 1; });
 
  
 
