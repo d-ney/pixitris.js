@@ -348,7 +348,7 @@ function update(delta) {
             pointer_down_pos.x = p.data.global.x;
         }
 
-        else if(is_dragging && (Math.abs(pointer_down_pos.y - p.data.global.y) > 50)) {
+        else if(is_dragging && Math.abs(pointer_down_pos.y - p.data.global.y) > 50 && Math.abs(pointer_down_pos.y - p.data.global.y) < 80) {
             input[1] = 1;
             //console.log("move down");
             pointer_down_pos.y = p.data.global.y;
