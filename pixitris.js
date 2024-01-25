@@ -54,8 +54,8 @@ function resize() {
 
      // uniform scale for our game
       scale = (screenWidth / window.innerHeight + screenHeight / window.innerWidth) / 2;
-      x_offset /= scale;
-      y_offset /= scale;
+      x_offset *= scale;
+      y_offset *= scale;
 }
 
 let block_queue = [];
