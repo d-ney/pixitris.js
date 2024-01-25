@@ -47,12 +47,14 @@ app.stage.addChild(bounding_box);
 window.addEventListener("resize", resize());
 
 function resize() {
-    app.resize(screenWidth, screenHeight);
+    
      // current screen size
       screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
       screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-     // uniform scale for our game
+      app.resize(screenWidth, screenHeight);
+
+      // uniform scale for our game
       scale = (screenWidth / window.innerHeight + screenHeight / window.innerWidth) / 2;
       x_offset *= scale;
       y_offset *= scale;
@@ -105,9 +107,9 @@ const tetrominos = [
                 
                 //Luigi the L tetromino
                     "...."+
+                    ".Xx."+
                     ".X.."+
-                    ".X.."+
-                    ".Xx.",
+                    ".X.",
                     
                 //Terry the T tetromino
                     "...."+
@@ -229,6 +231,7 @@ function setup() {
    bg.y = screenHeight / 2;
    console.log( "scale = " + scale);
    bg.scale.set(0.25 * scale);
+   //bg.scale.set(0.25, 0.25 * scale);
 
    let l = screenWidth / 2;
    let z = screenHeight / 2;
@@ -320,7 +323,7 @@ function update(delta) {
 
     bounding_box.on('pointermove', (p) => {
 
-        if(is_dragging && (Math.abs(pointer_down_pos.x - p.data.global.x) > 50)) {
+        if(is_dragging && (Math.abs(pointer_down_pos.x - p.data.global.x) > 60)) {
             if(pointer_down_pos.x - p.data.global.x > 0) {
 
                 console.log("move left");
@@ -338,7 +341,7 @@ function update(delta) {
             pointer_down_pos.x = p.data.global.x;
         }
 
-        else if(is_dragging && (Math.abs(pointer_down_pos.y - p.data.global.y) > 50)) {
+        else if(is_dragging && (Math.abs(pointer_down_pos.y - p.data.global.y) > 40)) {
             input[1] = 1;
             console.log("move down");
             pointer_down_pos.y = p.data.global.y;
