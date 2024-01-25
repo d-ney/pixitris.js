@@ -15,14 +15,7 @@ PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 const app = new PIXI.Application(options);
 app.renderer.view.style.display = "block";
 
-var js,
-fjs = document.getElementsByTagName("head")[0];
-var isios = (navigator.userAgent.match(/iPad|iPhone|iPod/i)); 
-if(isios) { 
-js = document.createElement("meta");
-js.httpEquiv = "Content-Security-Policy";
-js.content = "script-src 'unsafe-inline'"; 
-fjs.appendChild(js, fjs); }
+
 
 
 //var target = new PIXI.DisplayObjectContainer();
@@ -46,10 +39,8 @@ let x_offset = screenWidth / 2;
 let y_offset = screenHeight / 2;
 
 const bounding_box = new PIXI.Graphics();
-bounding_box.beginFill(0xFFFFFF);
+
 bounding_box.drawRect(0, 0, screenWidth, screenHeight);
-bounding_box.endFill();
-bounding_box.alpha = 0;
 bounding_box.interactive = true;
 app.stage.addChild(bounding_box);
 
@@ -588,7 +579,7 @@ function draw_pieces() {
             if(field[y*field_width + x] !=-1) {
                 let block = choose_block_sprite(field[y*field_width + x]);//PIXI.Sprite.from('assets/block/block.png');
                
-                block.alpha = 0.75;
+                //block.alpha = 0.75;
 
                 block_queue.push(block);
                 //block.anchor.set(0.5);
@@ -634,8 +625,8 @@ function draw_current_piece(is_locked = true) {
         for(let y = 0; y < 4; y++) {
             if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))].toUpperCase() == 'X') {
                 field[(current_piece_y + y) * field_width + (current_piece_x + x)] = current_piece_index;
-                if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))] == 'x')
-                    draw_smiley((current_piece_x + x), ((current_piece_y + y)), is_locked);
+                // if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))] == 'x')
+                //     draw_smiley((current_piece_x + x), ((current_piece_y + y)), is_locked);
 
             }
         }
