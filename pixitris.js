@@ -196,17 +196,17 @@ let stashed_piece = -1;
 let stashed_this_turn = 0;
 
 let score= 0;
-let score_offset_x = 3*(screenWidth + scale)/4;
+let score_offset_x = screenWidth / 2;
 let score_offset_y = screenHeight/8;
 let highscore = localStorage.getItem("highscore");
 if(highscore == null) localStorage.setItem("highscore", 0);
 //console.log(highscore);
 
 
-let score_text = new PIXI.Text(score,{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'right'});
+let score_text = new PIXI.Text(score,{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
 //app.stage.addChild(score_text);
 
-let highscore_text = new PIXI.Text(highscore,{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'right'});
+let highscore_text = new PIXI.Text(highscore,{fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
 //app.stage.addChild(highscore_text);
 
 let current_piece_index = Math.floor(Math.random()  * 100) % 7;
@@ -535,24 +535,26 @@ function render() {
 
     //print_field();
     draw_pieces();
-   // update_score();
+    update_score();
    // draw_current_piece();
 }
 
 function update_score() {
     
     app.stage.removeChild(score_text);
-    score_text = new PIXI.Text("SCORE: " + score,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'right'});  
+    score_text = new PIXI.Text("SCORE: " + score,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'center'});  
     score_text.position.x = score_offset_x;
-    score_text.position.y = 2*score_offset_y; 
+    score_text.position.y = 7* score_offset_y; 
     //console.log(score);
+    score_text.scale.set(scale);
     app.stage.addChild(score_text);
 
     app.stage.removeChild(highscore_text);
-    highscore_text = new PIXI.Text("HIGH: " + highscore,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'right'});  
+    highscore_text = new PIXI.Text("HIGH: " + highscore,{fontFamily : "Helvetica", fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'center'});  
     highscore_text.position.x = score_offset_x;
     highscore_text.position.y = score_offset_y;  
     //console.log(score);
+    highscore_text.scale.set(scale);
     app.stage.addChild(highscore_text);
 
     
