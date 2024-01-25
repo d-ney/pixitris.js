@@ -605,7 +605,7 @@ function choose_block_sprite(block_type) {
 
         case 2: return new PIXI.Sprite.from('assets/block/block_r.png',);
 
-        case 3: return new PIXI.Sprite.from('assets/block/block_db.png',);
+        case 3: return new PIXI.Sprite.from('assets/block/block_b.png',);
 
         case 4: return new PIXI.Sprite.from('assets/block/block_l.png',);
 
