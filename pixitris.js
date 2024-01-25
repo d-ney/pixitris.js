@@ -116,9 +116,9 @@ const tetrominos = [
                     ".X..",
                     
                 //Terry the T tetromino
-                    "...."+
-                    ".XXx"+
-                    "..X."+
+                    ".x.."+
+                    ".XX."+
+                    ".X.."+
                     "...."];
 
 
@@ -502,7 +502,7 @@ function update(delta) {
           }
           
           //choose the next piece,
-          current_piece_index = Math.floor(Math.random()  * 100) % 6;
+          current_piece_index = Math.floor(Math.random()  * 100) % 7;
 
           current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
           current_piece_y = 1;
