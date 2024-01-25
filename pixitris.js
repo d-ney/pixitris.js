@@ -232,7 +232,7 @@ function setup() {
    bg.x =  screenWidth / 2;
    bg.y = screenHeight / 2;
    //console.log( "scale = " + scale);
-   bg.scale.set(0.25 * scale);
+   bg.scale.set(scale);
    //bg.scale.set(0.25, 0.25 * scale);
 
    let l = screenWidth / 2;
@@ -580,7 +580,7 @@ function draw_pieces() {
 
                 block_queue.push(block);
                 //block.anchor.set(0.5);
-                block.scale.set(0.25 * scale);
+                block.scale.set(scale);
                 block.x = (x-1)*30*scale + x_offset;
                 block.y = (y-1)*30*scale + y_offset;
 
@@ -647,7 +647,7 @@ function draw_smiley( pos_x, pos_y, is_locked = true) {
     smiley.x = (pos_x-1)*30*scale + x_offset;
     smiley.y = (pos_y-1)*30*scale + y_offset;
     //smiley.alpha = 0.75;
-    smiley.scale.set(0.25 * scale);
+    smiley.scale.set(scale);
     app.stage.addChild(smiley);
 
      if(!is_locked) block_queue.push(smiley)
