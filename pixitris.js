@@ -612,7 +612,7 @@ function choose_block_sprite(block_type) {
         case 6: return PIXI.Sprite.from('assets/block/block_o.png',);
     }
 
-    //return PIXI.Sprite.from('assets/block/block.png');
+    return PIXI.Sprite.from('assets/block/block.png');
 
 }
 
