@@ -597,19 +597,19 @@ function draw_pieces() {
 
 function choose_block_sprite(block_type) {
     switch(block_type) {
-        case 0: return new PIXI.Sprite.from('assets/block/block_g.png',);
+        case 0: return PIXI.Sprite.from('assets/block/block_g.png',);
 
-        case 1: return new PIXI.Sprite.from('assets/block/block_p.png',);
+        case 1: return PIXI.Sprite.from('assets/block/block_p.png',);
 
-        case 2: return new PIXI.Sprite.from('assets/block/block_r.png',);
+        case 2: return PIXI.Sprite.from('assets/block/block_r.png',);
 
-        case 3: return new PIXI.Sprite.from('assets/block/block_b.png',);
+        case 3: return PIXI.Sprite.from('assets/block/block_b.png',);
 
-        case 4: return new PIXI.Sprite.from('assets/block/block_l.png',);
+        case 4: return PIXI.Sprite.from('assets/block/block_l.png',);
 
-        case 5: return new PIXI.Sprite.from('assets/block/block_pi.png',);
+        case 5: return PIXI.Sprite.from('assets/block/block_pi.png',);
 
-        case 6: return new PIXI.Sprite.from('assets/block/block_o.png',);
+        case 6: return PIXI.Sprite.from('assets/block/block_o.png',);
     }
 
     return new PIXI.Sprite.from('assets/block/block.png');
