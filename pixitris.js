@@ -7,6 +7,8 @@ const options = {
 
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
+    eventMode: 'static'
+    
 
 }
 
@@ -38,11 +40,6 @@ console.log("scale = " + scale);
 let x_offset = screenWidth / 2;
 let y_offset = screenHeight / 2;
 
-const bounding_box = new PIXI.Graphics();
-
-bounding_box.drawRect(0, 0, screenWidth, screenHeight);
-bounding_box.interactive = true;
-app.stage.addChild(bounding_box);
 
 // listen for the browser telling us that the screen size changed
 window.addEventListener("resize", resize());
@@ -312,7 +309,7 @@ function update(delta) {
     //circle.position.set(app.screen.width / 2, app.screen.height / 2);
     
     
-    bounding_box.on("pointerdown", (pointer) => {
+   app.renderer.plugins.interaction.on("pointerdown", (pointer) => {
        
         pointer_down_pos = {
             x: pointer.data.global.x,
@@ -326,7 +323,7 @@ function update(delta) {
 
 
 
-    bounding_box.on('pointermove', (p) => {
+   app.renderer.plugins.interaction.on('pointermove', (p) => {
 
         if(is_dragging && (Math.abs(pointer_down_pos.x - p.data.global.x) > 60)) {
             if(pointer_down_pos.x - p.data.global.x > 0) {
@@ -357,7 +354,7 @@ function update(delta) {
                // console.log("drag");
     })
     
-    bounding_box.on('pointerup', (p) => {is_dragging = false; if(Math.abs(pointer_down_pos.x - p.data.global.x) < 2) input[4] = 1; });
+    app.renderer.plugins.interaction.on('pointerup', (p) => {is_dragging = false; if(Math.abs(pointer_down_pos.x - p.data.global.x) < 2) input[4] = 1; });
 
 
 
