@@ -186,7 +186,7 @@ PIXI.Loader.shared
 let game_over = false;
 let total_cycles = 0;
 let total_pieces = 0;
-let gravity_interval = 40;
+let gravity_interval = 60;
 let rotates = 0;
 let cleared_lines = [];
 
