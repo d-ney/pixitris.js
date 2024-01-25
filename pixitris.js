@@ -15,6 +15,16 @@ PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 const app = new PIXI.Application(options);
 app.renderer.view.style.display = "block";
 
+var js,
+fjs = document.getElementsByTagName("head")[0];
+var isios = (navigator.userAgent.match(/iPad|iPhone|iPod/i)); 
+if(isios) { 
+js = document.createElement("meta");
+js.httpEquiv = "Content-Security-Policy";
+js.content = "script-src 'unsafe-inline'"; 
+fjs.appendChild(js, fjs); }
+
+
 //var target = new PIXI.DisplayObjectContainer();
 //target.setInteractive(true);
 //app.stage.addChild(target);
