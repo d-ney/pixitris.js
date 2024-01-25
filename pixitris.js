@@ -379,6 +379,7 @@ function update(delta) {
                 current_piece_y += 1;
                 //console.log("left pressed");
                 input[1] = 0;
+                input[4] = 0;
             }
         }
         if(input[2]){
