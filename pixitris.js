@@ -320,7 +320,7 @@ function update(delta) {
 
     bounding_box.on('pointermove', (p) => {
 
-        if(is_dragging && (Math.abs(pointer_down_pos.x - p.data.global.x) > 30)) {
+        if(is_dragging && (Math.abs(pointer_down_pos.x - p.data.global.x) > 50)) {
             if(pointer_down_pos.x - p.data.global.x > 0) {
 
                 console.log("move left");
@@ -338,7 +338,7 @@ function update(delta) {
             pointer_down_pos.x = p.data.global.x;
         }
 
-        else if(is_dragging && (Math.abs(pointer_down_pos.y - p.data.global.y) > 30)) {
+        else if(is_dragging && (Math.abs(pointer_down_pos.y - p.data.global.y) > 50)) {
             input[1] = 1;
             console.log("move down");
             pointer_down_pos.y = p.data.global.y;
