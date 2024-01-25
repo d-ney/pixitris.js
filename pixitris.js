@@ -47,7 +47,7 @@ function resize() {
       screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
      // uniform scale for our game
-      scale = Math.max(screenWidth / window.innerHeight, screenHeight / window.innerWidth);
+      scale = ((screenWidth / window.innerHeight) +(screenHeight / window.innerWidth)) / 2;
 }
 
 let block_queue = [];
