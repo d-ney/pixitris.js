@@ -575,7 +575,7 @@ function draw_pieces() {
     for(let x = 1; x < field_width - 1; x++) {
         for(let y = 1; y < field_height - 1; y++) {
             if(field[y*field_width + x] !=-1) {
-                let block = choose_block_sprite(field[y*field_width + x]);//PIXI.Sprite.from('assets/block/block.png');
+                let block = PIXI.Sprite.from(choose_block_sprite(field[y*field_width + x]));//PIXI.Sprite.from('assets/block/block.png');
                
                 //block.alpha = 0.75;
 
@@ -598,22 +598,22 @@ function draw_pieces() {
 
 function choose_block_sprite(block_type) {
     switch(block_type) {
-        case 0: return PIXI.Sprite.from('assets/block/block_g.png',);
+        case 0: return 'assets/block/block_g.png';
 
-        case 1: return PIXI.Sprite.from('assets/block/block_p.png',);
+        case 1: return 'assets/block/block_p.png';
 
-        case 2: return PIXI.Sprite.from('assets/block/block_r.png',);
+        case 2: return 'assets/block/block_r.png';
 
-        case 3: return PIXI.Sprite.from('assets/block/block_b.png',);
+        case 3: return 'assets/block/block_b.png';
 
-        case 4: return PIXI.Sprite.from('assets/block/block_l.png',);
+        case 4: return 'assets/block/block_l.png';
 
-        case 5: return PIXI.Sprite.from('assets/block/block_pi.png',);
+        case 5: return 'assets/block/block_pi.png';
 
-        case 6: return PIXI.Sprite.from('assets/block/block_o.png',);
+        case 6: return 'assets/block/block_o.png';
     }
 
-    return PIXI.Sprite.from('assets/block/block.png');
+    return 'assets/block/block.png';
 
 }
 
