@@ -533,7 +533,7 @@ function render() {
 
     //print_field();
     draw_pieces();
-    update_score();
+   // update_score();
    // draw_current_piece();
 }
 
@@ -566,7 +566,8 @@ function draw_pieces() {
         app.stage.removeChild(block);
     });
 
-    block_queue = [];
+
+    
 
     draw_current_piece(false);
     let count = 0;
