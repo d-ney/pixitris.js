@@ -335,12 +335,14 @@ function update(delta) {
 
                 //console.log("move left");
                 input[2] = 1;
+                input[0] = 1;
                 pointer_down_pos.x = p.data.global.x;
                
             } else
             if((pointer_down_pos.x - p.data.global.x) < 0) {
 
                 input[3] = 1;
+                input[0] = 1;
                 //console.log("move right");
                 pointer_down_pos.x = p.data.global.x;
             }
