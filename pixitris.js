@@ -337,12 +337,19 @@ function update(delta) {
 
             pointer_down_pos.x = p.data.global.x;
         }
+
+        if(is_dragging && (Math.abs(pointer_down_pos.y - p.data.global.y) > 30)) {
+            input[1] = 1;
+            console.log("move down");
+            pointer_down_pos.y = p.data.global.y;
+        }
+
             //if( pointer_down_pos.x != p.data.global.x)
             //if(pointer_down_pos.x - p.data.global.x > 10)
                // console.log("drag");
     })
     
-    bounding_box.on('pointerup', (p) => {is_dragging = false; if(Math.abs(pointer_down_pos.x - p.data.global.x) < 5) input[4] = 1; });
+    bounding_box.on('pointerup', (p) => {is_dragging = false; if(Math.abs(pointer_down_pos.x - p.data.global.x) < 2) input[4] = 1; });
 
 
 
