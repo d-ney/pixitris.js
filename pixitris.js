@@ -491,6 +491,7 @@ function update(delta) {
           //manage score,
           score += 25;
           if(cleared_lines.length > 0) score += Math.pow(2, cleared_lines.length) * 100
+          update_score();
         
           //console.log(smiley_queue);
 
@@ -549,7 +550,6 @@ function render() {
 
     //print_field();
     draw_pieces();
-    update_score();
    // draw_current_piece();
 }
 
