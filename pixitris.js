@@ -218,8 +218,6 @@ let stashed_piece = -1;
 let stashed_this_turn = 0;
 
 let score= 0;
-let score_offset_x = screenWidth * 2/3;
-let score_offset_y = screenHeight/8;
 let highscore = localStorage.getItem("highscore");
 if(highscore == null) localStorage.setItem("highscore", 0);
 //console.log(highscore);
@@ -231,12 +229,9 @@ PIXI.BitmapFont.from("ScoreFont", {
   });
 
 let score_text = new PIXI.BitmapText("" + score,{fontName : 'ScoreFont'});
-score_text.position.set({x:  screenWidth * 2/3, y: screenHeight/8});
-
-
 
 let highscore_text = new PIXI.BitmapText("" + highscore,{fontName : 'ScoreFont'});
-score_text.position.set({x:  screenWidth * 2/3, y: screenHeight/8});
+app.stage.addChild(score_text);
 app.stage.addChild(highscore_text);
 
 let current_piece_index = Math.floor(Math.random()  * 100) % 7;
@@ -252,6 +247,12 @@ let pointer_down_pos = {x:0,y:0};
 let is_dragging = false;
 let start = false;
 const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
+const bg = PIXI.Sprite.from('assets/bg.png');
+
+
+let score_offset_x = 0;
+let score_offset_y = 0;
+let highscore_offset_y = 0;
 
 function title() {
 
@@ -272,7 +273,7 @@ function setup() {
    // print_field();
 
    // draw static elements of the playing field
-   const bg = PIXI.Sprite.from('assets/bg.png');
+
    bg.anchor.set(0.5);
    bg.x =  screenWidth / 2;
    bg.y = screenHeight / 2;
@@ -294,10 +295,14 @@ function setup() {
 //    block.x = app.screen.width / 2;
 //    block.y = app.screen.height / 2;
    //block.scale.set(0.25);
-   
-
+   score_text.position.set(bg.position);
 
    app.stage.addChild(bg);
+
+   score_offset_x = bg.width * 1/4 + bg.position.x;
+   highscore_offset_y = bg.position.y - bg.height * 1.97/5;
+   score_offset_y = bg.position.y - bg.height * 1.05/5;
+
    update_score();
 
    
@@ -600,7 +605,7 @@ function update_score() {
     app.stage.removeChild(score_text);
     score_text = new PIXI.BitmapText( " " + score, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
     score_text.position.x = score_offset_x;
-    score_text.position.y = 2.4 * score_offset_y; 
+    score_text.position.y = score_offset_y; 
     //console.log(score);
     score_text.scale.set(scale);
     app.stage.addChild(score_text);
@@ -608,9 +613,10 @@ function update_score() {
     app.stage.removeChild(highscore_text);
     highscore_text = new PIXI.BitmapText(" " + highscore, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
     highscore_text.position.x = score_offset_x;
-    highscore_text.position.y = score_offset_y;  
-    //console.log(score);
+    highscore_text.position.y = highscore_offset_y;
     highscore_text.scale.set(scale);
+    //console.log(score);
+    //highscore_text.scale.set(scale);
     app.stage.addChild(highscore_text);
 
     
