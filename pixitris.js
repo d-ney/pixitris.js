@@ -201,7 +201,9 @@ function check_piece_collision(tetr_type, curr_rotation, x_pos, y_pos) {
 //load an image and run the `setup` function when it's done
 PIXI.Loader.shared
  .add("assets/bg.png")
- .load(setup);
+ .add("assets/titlscreen.png")
+ .load(setup)
+ .load(title);
 
 
 //GAME VARIABLES=================================
@@ -248,8 +250,21 @@ let input = [0,0,0,0,0,0,0];
 
 let pointer_down_pos = {x:0,y:0};
 let is_dragging = false;
+let start = false;
+const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
 
+function title() {
 
+    titlescreen.anchor.set(0.5);
+    titlescreen.x =  screenWidth / 2;
+    titlescreen.y = screenHeight / 2;
+    titlescreen.eventMode = 'static';
+    
+
+    titlescreen.scale.set(scale);
+    app.stage.addChild(titlescreen);
+
+}
 
 function setup() {
 
@@ -284,6 +299,7 @@ function setup() {
 
    app.stage.addChild(bg);
    update_score();
+
    
   // app.stage.addChild(block);
 
@@ -292,7 +308,12 @@ function setup() {
 
 }
 
+
 function update(delta) {
+
+    app.renderer.plugins.interaction.on('pointerdown', () => {start = true; app.stage.removeChild(titlescreen)});
+
+    if(!start) return;
 
 //INPUT===========================================
     
