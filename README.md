@@ -34,7 +34,7 @@ Soft Swipe Down = move piece down
 
 Hard Swipe = drop piece
 
-Tap = rotate
+Tap = rotate piece
 
 Tap 'Stash' Window = stash piece
 
