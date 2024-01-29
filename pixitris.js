@@ -82,7 +82,8 @@ function resize() {
       else
         scale = Math.min(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
       
-      scale *= 0.99;
+      scale = Math.min(scale, 1);
+      scale *= 0.98;
       x_offset *= scale;
       y_offset *= scale;
 }
