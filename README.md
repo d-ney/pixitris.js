@@ -4,10 +4,15 @@ A free, open source, web-based block stacking and score attacking clone reminisc
 Free and open source, forever.
 
 Controls (Keyboard):
+
 A,S,D = move piece
+
 E = stash piece
+
 R = rotate piece
+
 SPACE = drop piece
+
 
 Controls (Touch):
 Swipe Left, Right = move piece
