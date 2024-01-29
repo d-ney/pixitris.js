@@ -7,7 +7,10 @@ Free and open source, forever.
 
 
 
+
+
 ## Controls 
+
 
 ### Keyboard:
 
@@ -18,6 +21,7 @@ E = stash piece
 R = rotate piece
 
 SPACE = drop piece
+
 
 
 
@@ -33,6 +37,8 @@ Hard Swipe = drop piece
 Tap = rotate
 
 Tap 'Stash' Window = stash piece
+
+
 
 
 
