@@ -7,7 +7,9 @@ const options = {
 
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
-    eventMode: 'static'
+    eventMode: 'static',
+    antialias: false,
+    ROUND_PIXELS: true
     
 
 }
@@ -80,6 +82,7 @@ function resize() {
       else
         scale = Math.min(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
       
+      scale *= 0.99;
       x_offset *= scale;
       y_offset *= scale;
 }
@@ -201,7 +204,7 @@ function check_piece_collision(tetr_type, curr_rotation, x_pos, y_pos) {
 //load an image and run the `setup` function when it's done
 PIXI.Loader.shared
  .add("assets/bg.png")
- .add("assets/titlscreen.png")
+ .add("assets/titlescreen.png")
  .load(setup)
  .load(title);
 
@@ -262,7 +265,7 @@ function title() {
     titlescreen.eventMode = 'static';
     
 
-    titlescreen.scale.set(scale);
+    titlescreen.scale.set(scale * 0.25);
     app.stage.addChild(titlescreen);
 
 }
@@ -278,7 +281,7 @@ function setup() {
    bg.x =  screenWidth / 2;
    bg.y = screenHeight / 2;
    //console.log( "scale = " + scale);
-   bg.scale.set(scale);
+   bg.scale.set(scale * 0.25);
    //bg.scale.set(0.25, 0.25 * scale);
 
    let l = screenWidth / 2;
