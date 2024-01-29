@@ -1,6 +1,6 @@
 # pixitris.js
 
-A free, open source, web-based block stacking and score attacking clone reminiscent of a certain cold war era classic that begins with T.
+A web-based block stacking and score attacking clone reminiscent of a certain cold war era classic that begins with T.
 Free and open source, forever.
 
 
