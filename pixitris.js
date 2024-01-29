@@ -13,6 +13,28 @@ const options = {
 }
 
 
+// Load them google fonts before starting...
+window.WebFontConfig = {
+    google: {
+        families: ['Pixelify Sans'],
+    },
+};
+
+/* eslint-disable */
+// include the web-font loader script
+(function() {
+    const wf = document.createElement('script');
+    wf.src = `${document.location.protocol === 'https:' ? 'https' : 'http'
+    }://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js`;
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    const s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+}());
+/* eslint-enabled */
+
+
+
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 const app = new PIXI.Application(options);
 app.renderer.view.style.display = "block";
@@ -70,7 +92,7 @@ for(let x = 0; x < field_width; x++)
     for(y = 0; y < field_height; y++)
         field[x + y*field_width] = 
             ( x == 0 || x == field_width - 1
-                || y == field_height - 1 ? -2: -1 )
+                || y == field_height - 1 ? -9: -8 )
 
 //Create a constant string array to contain patterns for the six main tetronimos
 //NOTE: This array is one-dimensional. This allows the patterns in the array to be easily 'rotated' by changing the
@@ -78,10 +100,10 @@ for(let x = 0; x < field_width; x++)
 
 const tetrominos = [
                 // Larry the long tetromino
-                    "..x."+
                     "..X."+
                     "..X."+
-                    "..X.",
+                    "..X."+
+                    "..x.",
                 
                 // Zulu the Z tetromino
                     "..x."+
@@ -163,7 +185,7 @@ function check_piece_collision(tetr_type, curr_rotation, x_pos, y_pos) {
                     //and the field at the equivalent position is filled, then the collision check fails and we return zero.
                    
                     //console.log(tetrominos[tetr_type][tetr_index] + " " + field[field_index])
-                    if(tetrominos[tetr_type][tetr_index].toUpperCase() == 'X' && field[field_index] != -1)                      
+                    if(tetrominos[tetr_type][tetr_index].toUpperCase() == 'X' && field[field_index] != -8)                      
                         return false; 
                 }
             }
@@ -194,23 +216,26 @@ let stashed_piece = -1;
 let stashed_this_turn = 0;
 
 let score= 0;
-let score_offset_x = screenWidth / 2;
+let score_offset_x = screenWidth * 2/3;
 let score_offset_y = screenHeight/8;
 let highscore = localStorage.getItem("highscore");
 if(highscore == null) localStorage.setItem("highscore", 0);
 //console.log(highscore);
 
 PIXI.BitmapFont.from("ScoreFont", {
-    fill: "#333333",
-    fontSize: 40,
-    fontWeight: 'bold',
+    fontFamily: "Pixelify Sans",
+    fill: "#F6F3F4",
+    fontSize: 32,
   });
 
-let score_text = new PIXI.BitmapText(score,{fontName : 'ScoreFont', fontSize: 24, fill : 0xff1010, align : 'center'});
-//app.stage.addChild(score_text);
+let score_text = new PIXI.BitmapText("" + score,{fontName : 'ScoreFont'});
+score_text.position.set({x:  screenWidth * 2/3, y: screenHeight/8});
 
-let highscore_text = new PIXI.BitmapText(highscore,{fontName : 'ScoreFont', fontSize: 24, fill : 0xff1010, align : 'center'});
-//app.stage.addChild(highscore_text);
+
+
+let highscore_text = new PIXI.BitmapText("" + highscore,{fontName : 'ScoreFont'});
+score_text.position.set({x:  screenWidth * 2/3, y: screenHeight/8});
+app.stage.addChild(highscore_text);
 
 let current_piece_index = Math.floor(Math.random()  * 100) % 7;
 let current_rotation_index = 0;
@@ -258,6 +283,8 @@ function setup() {
 
 
    app.stage.addChild(bg);
+   update_score();
+   
   // app.stage.addChild(block);
 
 
@@ -474,7 +501,7 @@ function update(delta) {
             if(current_piece_y + y < field_height - 1) {
                 let line_completed_flag = true;
                 for(let x = 1; x < field_width - 1; x++) 
-                    line_completed_flag &= (field[(current_piece_y + y) * field_width + x] != -1)
+                    line_completed_flag &= (field[(current_piece_y + y) * field_width + x] != -8)
 
                 if(line_completed_flag) {
                         for(let x = 1; x < field_width - 1; x++) {
@@ -500,19 +527,13 @@ function update(delta) {
                 for(let x = 1; x < field_width - 1; x++) {
                     for(let y = line; y > 0; y--) {
                         field[y * field_width + x] = field[(y-1) * field_width + x];
-                        field[x] = -1;
+                        field[x] = -8;
                     }
                 }
                 
             });
 
             
-             smiley_queue.forEach((smiley, index) => {
-                //console.log("smiley coords: x = " + Math.floor((smiley.x+1)/(30*scale)) + ", y = " + Math.floor((smiley.y+1)/30))
-                
-                if(field[ Math.floor((smiley.x+1)/30) * field_width + Math.floor(smiley.y/30)] == -1) 
-                    app.stage.removeChild(smiley);
-             });
             cleared_lines = [];
           }
           
@@ -548,7 +569,7 @@ function render() {
      //app.renderer.view.style.position = "relative";
 
 
-    //print_field();
+   // print_field();
     draw_pieces();
    // draw_current_piece();
 }
@@ -556,15 +577,15 @@ function render() {
 function update_score() {
     
     app.stage.removeChild(score_text);
-    score_text = new PIXI.BitmapText("SCORE: " + score,{fontName : 'ScoreFont', fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'center'});  
+    score_text = new PIXI.BitmapText( " " + score, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
     score_text.position.x = score_offset_x;
-    score_text.position.y = 7* score_offset_y; 
+    score_text.position.y = 2.4 * score_offset_y; 
     //console.log(score);
     score_text.scale.set(scale);
     app.stage.addChild(score_text);
 
     app.stage.removeChild(highscore_text);
-    highscore_text = new PIXI.BitmapText("HIGH: " + highscore,{fontName : 'ScoreFont', fontSize: 24, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'center'});  
+    highscore_text = new PIXI.BitmapText(" " + highscore, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
     highscore_text.position.x = score_offset_x;
     highscore_text.position.y = score_offset_y;  
     //console.log(score);
@@ -582,6 +603,9 @@ function draw_pieces() {
         app.stage.removeChild(block);
     });
 
+    block_queue = [];
+    block_queue.sortableChildren = true;
+
 
     
 
@@ -590,7 +614,7 @@ function draw_pieces() {
 
     for(let x = 1; x < field_width - 1; x++) {
         for(let y = 1; y < field_height - 1; y++) {
-            if(field[y*field_width + x] !=-1) {
+            if(field[y*field_width + x] !=-8) {
                 let block = PIXI.Sprite.from(choose_block_sprite(field[y*field_width + x]));//PIXI.Sprite.from('assets/block/block.png');
                
                 //block.alpha = 0.75;
@@ -602,6 +626,17 @@ function draw_pieces() {
                 block.y = (y-1)*30*scale + y_offset;
 
                 app.stage.addChild(block);
+
+                if((Math.sign(field[y*field_width + x])) < 0) {
+
+                let smiley = PIXI.Sprite.from('assets/smiley.png');
+                smiley.position.set(block.x, block.y);
+                smiley.scale.set(0.25 * scale);
+                block_queue.push(smiley);
+                smiley.parent = block;
+                smiley.zIndex = 1;
+                app.stage.addChild(smiley);
+                }
             
 
                 //console.log("block x: " + x + ", y: " + y);
@@ -613,7 +648,7 @@ function draw_pieces() {
 }
 
 function choose_block_sprite(block_type) {
-    switch(block_type) {
+    switch(Math.abs(block_type)) {
         case 0: return 'assets/block/block_g.png';
 
         case 1: return 'assets/block/block_p.png';
@@ -639,8 +674,11 @@ function draw_current_piece(is_locked = true) {
         for(let y = 0; y < 4; y++) {
             if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))].toUpperCase() == 'X') {
                 field[(current_piece_y + y) * field_width + (current_piece_x + x)] = current_piece_index;
-                // if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))] == 'x')
+
+                 if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))] == 'x')
+                    field[(current_piece_y + y) * field_width + (current_piece_x + x)] = -1 * current_piece_index;
                 //     draw_smiley((current_piece_x + x), ((current_piece_y + y)), is_locked);
+                
 
             }
         }
@@ -651,7 +689,7 @@ function erase_current_piece() {
     for(let x = 0; x < 4; x++) {
         for(let y = 0; y < 4; y++) {
             if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))].toUpperCase() == 'X') {
-                field[(current_piece_y + y) * field_width + (current_piece_x + x)] = -1;
+                field[(current_piece_y + y) * field_width + (current_piece_x + x)] = -8;
             }
         }
     }
@@ -660,7 +698,7 @@ function erase_current_piece() {
 function draw_smiley( pos_x, pos_y, is_locked = true) {
 
 
-    let smiley = PIXI.Sprite.from('assets/smiley.png');
+   
     smiley.x = (pos_x-1)*30*scale + x_offset;
     smiley.y = (pos_y-1)*30*scale + y_offset;
     //smiley.alpha = 0.75;
@@ -681,10 +719,10 @@ function print_field() {
         if( i % (field_width) == 0)
             c_field+='\n';
             //console.log(e);
-        let x = (e == -1 ? " " : e)
+        let x = (e == -8 ? " " : e)
         c_field+=x; 
     })
-    //console.log(c_field);
+    console.log(c_field);
     erase_current_piece();
 }
 
