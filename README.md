@@ -1,4 +1,4 @@
-## pixitris.js
+# pixitris.js
 
 A free, open source, web-based block stacking and score attacking clone reminiscent of a certain cold war era classic that begins with T.
 Free and open source, forever.
@@ -7,7 +7,9 @@ Free and open source, forever.
 
 
 
-# Controls (Keyboard):
+## Controls 
+
+### Keyboard:
 
 A,S,D = move piece
 
@@ -20,7 +22,7 @@ SPACE = drop piece
 
 
 
-# Controls (Touch):
+### Touch:
 
 Swipe Left, Right = move piece
 
@@ -35,13 +37,13 @@ Tap 'Stash' Window = stash piece
 
 
 
-# Libraries Used:
+## Libraries Used:
 
   Pixi.js: https://github.com/pixijs/pixijs
 
   
 
-# Sources/Credits:
+## Sources/Credits:
 
   https://www.youtube.com/watch?v=8OK8_tHeCIA&t=1731s
   
