@@ -94,7 +94,7 @@ for(let x = 0; x < field_width; x++)
             ( x == 0 || x == field_width - 1
                 || y == field_height - 1 ? -9: -8 )
 
-//Create a constant string array to contain patterns for the six main tetronimos
+//Create a constant string array to contain patterns for the six main tetrominos
 //NOTE: This array is one-dimensional. This allows the patterns in the array to be easily 'rotated' by changing the
 //formula used to access the elements of the array.
 
@@ -145,7 +145,7 @@ const tetrominos = [
 
 
 
-//rotate(): emulates rotating a tetronimo by accessing its pattern array by using a modified indexing formula.
+//rotate(): emulates rotating a tetromino by accessing its pattern array by using a modified indexing formula.
 //Base formula: i = y * w + x
 //w = 4
 
@@ -166,7 +166,7 @@ function rotate(x, y, r) {
 
 function check_piece_collision(tetr_type, curr_rotation, x_pos, y_pos) {
     
-    //for each field in the tetronimo template
+    //for each field in the tetromino template
     for(let x = 0; x < 4; x++) {
         for(let y = 0; y < 4; y++) {
             
