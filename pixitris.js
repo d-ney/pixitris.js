@@ -582,7 +582,7 @@ function update(delta) {
     
           //reset flags
           stashed_this_turn = 0;
-          grace_period = 2;
+          grace_period = 4;
         }
 
 
