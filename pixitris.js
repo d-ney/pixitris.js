@@ -242,7 +242,7 @@ let current_piece_index = Math.floor(Math.random()  * 100) % 7;
 let current_rotation_index = 0;
 let current_piece_x = field_width / 2 - 2; //represents default position where pieces will be spawned
 let current_piece_y = 1;
-
+let grace_period = 0;
 
 
 let input = [0,0,0,0,0,0,0];
@@ -361,15 +361,6 @@ function update(delta) {
     
     })
 
-    // Create the circle
-    // const circle = app.stage.addChild(new PIXI.Graphics()
-    // .beginFill(0xffffff)
-    // .lineStyle({ color: 0x111111, alpha: 0.87, width: 1 })
-    // .drawCircle(0, 0, 8)
-    // .endFill());
-
-    //circle.position.set(app.screen.width / 2, app.screen.height / 2);
-    
     
    app.renderer.plugins.interaction.on("pointerdown", (pointer) => {
        
@@ -377,7 +368,6 @@ function update(delta) {
             x: pointer.data.global.x,
             y: pointer.data.global.y
         };
-        //console.log(pointer_down_pos);
 
        is_dragging = true;
 
@@ -419,17 +409,24 @@ function update(delta) {
             //console.log("move down");
             pointer_down_pos.y = p.data.global.y;
         }
-
-
-
-            //if( pointer_down_pos.x != p.data.global.x)
-            //if(pointer_down_pos.x - p.data.global.x > 10)
-               // console.log("drag");
     })
     
-    app.renderer.plugins.interaction.on('pointerup', (p) => {is_dragging = false; if(Math.abs(pointer_down_pos.x - p.data.global.x) < 2) input[4] = 1; });
+    app.renderer.plugins.interaction.on('pointerup', (p) => {
 
-    app.renderer.plugins.interaction.on('pointerout', (p) => {is_dragging = false; if(Math.abs(pointer_down_pos.x - p.data.global.x) < 2) input[4] = 1; });
+        is_dragging = false; 
+        
+        if(Math.abs(pointer_down_pos.x - p.data.global.x) < 2) 
+            input[4] = 1;
+
+     });
+
+    app.renderer.plugins.interaction.on('pointerout', (p) => {
+
+        is_dragging = false; 
+
+        if(Math.abs(pointer_down_pos.x - p.data.global.x) < 2) 
+            input[4] = 1; 
+    });
 
  
 
@@ -451,6 +448,7 @@ function update(delta) {
                 //console.log("left pressed");
             }
             input[0] = 0;
+            input[4] = 0;
         }
         if(input[1]){
             if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x, current_piece_y + 1)){
@@ -502,7 +500,10 @@ function update(delta) {
            input[5] = 0;
         }   
 
-    
+    if(grace_period > 0) {
+        grace_period --;
+        return;
+    }
     //every time the total update cycle equals the interval decided by the game's current difficulty,
     if(!(total_cycles % gravity_interval))
 
@@ -581,6 +582,7 @@ function update(delta) {
     
           //reset flags
           stashed_this_turn = 0;
+          grace_period = 2;
         }
 
 
