@@ -77,13 +77,13 @@ function resize() {
       app.resize(screenWidth, screenHeight);
 
       // uniform scale for our game
-    //  if(screenHeight > screenWidth)
-      //  scale = Math.max(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
-     // else
+      if(screenHeight > screenWidth)
+        scale = Math.max(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
+      else
         scale = Math.min(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
       
-      //scale = Math.min(scale, 1);
-      scale *= 0.98;
+      scale = Math.min(scale, 1.5);
+
       x_offset *= scale;
       y_offset *= scale;
 }
