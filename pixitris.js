@@ -79,49 +79,14 @@ for (let x = 0; x < field_width; x++) {
 // Tetromino Definitions
 // Defines patterns for the six main tetromino shapes in a single-dimensional array.
 const tetrominos = [
-                // Larry the long tetromino
-                    "..X."+
-                    "..X."+
-                    "..X."+
-                    "..x.",
-                
-                // Zulu the Z tetromino
-                    "..x."+
-                    ".XX."+
-                    ".X.."+
-                    "....",
-
-                // Sully the S tetromino    
-                    ".x.."+
-                    ".XX."+
-                    "..X."+
-                    "....",
-
-                // Stan the square tetromino
-                    "...."+
-                    ".Xx."+
-                    ".XX."+
-                    "....",
-
-                //Wah the reverse L tetromino
-                    "...."+
-                    ".xX."+
-                    "..X."+
-                    "..X.",
-                
-                //Luigi the L tetromino
-                    "...."+
-                    ".Xx."+
-                    ".X.."+
-                    ".X..",
-                    
-                //Terry the T tetromino
-                    ".x.."+
-                    ".XX."+
-                    ".X.."+
-                    "...."
+    "..X..X..X..X.", // Long Tetromino
+    "..X.XX.X....",
+    ".X..XX..X....",
+    "....XX..XX....",
+    "....X..XX..X..",
+    "....XX..X..X..",
+    ".X..XX..X....."  // T Tetromino
 ];
-
 
 // Function: rotate
 // Rotates a tetromino pattern based on the rotation index (0-3).
@@ -271,44 +236,139 @@ function update(delta) {
 // Function: render
 // Handles rendering of the game field and pieces.
 function render() {
+    // Add the canvas that Pixi automatically created for you to the HTML document
+    // document.body.appendChild(app.view);
+    // app.renderer.backgroundColor = 0x061639;
+    // app.renderer.view.style.position = "relative";
+
+    // print_field();
     draw_pieces();
+    // draw_current_piece();
 }
 
 // Function: update_score
 // Updates the displayed score and high score on the screen.
 function update_score() {
     app.stage.removeChild(score_text);
-    score_text = new PIXI.BitmapText(" " + score, { fontName: 'ScoreFont', fontSize: 28 });
-    score_text.position.set(bg.x, bg.y - 50);
+    score_text = new PIXI.BitmapText( " " + score, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
+    score_text.position.x = score_offset_x;
+    score_text.position.y = score_offset_y; 
     score_text.scale.set(scale);
     app.stage.addChild(score_text);
 
     app.stage.removeChild(highscore_text);
-    highscore_text = new PIXI.BitmapText(" " + highscore, { fontName: 'ScoreFont', fontSize: 28 });
-    highscore_text.position.set(bg.x, bg.y - 100);
+    highscore_text = new PIXI.BitmapText(" " + highscore, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
+    highscore_text.position.x = score_offset_x;
+    highscore_text.position.y = highscore_offset_y;
     highscore_text.scale.set(scale);
     app.stage.addChild(highscore_text);
 }
 
-// Function: handle_line_clear
-// Checks for completed lines and clears them while managing score.
-function handle_line_clear() {
-    cleared_lines.forEach(line => {
-        for (let x = 1; x < field_width - 1; x++) {
-            for (let y = line; y > 0; y--) {
-                field[y * field_width + x] = field[(y - 1) * field_width + x];
-            }
-            field[x] = -8;
-        }
+// Function: draw_pieces
+// Renders all blocks currently in the field and the current tetromino.
+function draw_pieces() {
+    block_queue.forEach(block => {
+        app.stage.removeChild(block);
     });
-    cleared_lines = [];
+
+    block_queue = [];
+    block_queue.sortableChildren = true;
+
+    draw_current_piece(false);
+    for (let x = 1; x < field_width - 1; x++) {
+        for (let y = 1; y < field_height - 1; y++) {
+            if (field[y * field_width + x] !== -8) {
+                let block = PIXI.Sprite.from(choose_block_sprite(field[y * field_width + x]));
+                block.scale.set(scale);
+                block.x = (x - 1) * 30 * scale + x_offset;
+                block.y = (y - 1) * 30 * scale + y_offset;
+                app.stage.addChild(block);
+                block_queue.push(block);
+
+                if (Math.sign(field[y * field_width + x]) < 0) {
+                    let smiley = PIXI.Sprite.from('assets/smiley.png');
+                    smiley.position.set(block.x, block.y);
+                    smiley.scale.set(0.25 * scale);
+                    block_queue.push(smiley);
+                    smiley.parent = block;
+                    smiley.zIndex = 1;
+                    app.stage.addChild(smiley);
+                }
+            }
+        }
+    }
+
+    erase_current_piece(); 
 }
 
-// Function: reset_piece
-// Resets the current piece to a new random piece.
-function reset_piece() {
-    current_piece_index = Math.floor(Math.random() * 7);
-    current_piece_x = field_width / 2 - 2;
-    current_piece_y = 1;
-    current_rotation_index = 0;
+// Function: choose_block_sprite
+// Returns the appropriate block sprite based on the block type.
+function choose_block_sprite(block_type) {
+    switch (Math.abs(block_type)) {
+        case 0: return 'assets/block/block_g.png';
+        case 1: return 'assets/block/block_p.png';
+        case 2: return 'assets/block/block_r.png';
+        case 3: return 'assets/block/block_b.png';
+        case 4: return 'assets/block/block_l.png';
+        case 5: return 'assets/block/block_pi.png';
+        case 6: return 'assets/block/block_o.png';
+    }
+    return 'assets/block/block.png';
+}
+
+// Function: draw_current_piece
+// Draws the current tetromino onto the field.
+function draw_current_piece(is_locked = true) {
+    for (let x = 0; x < 4; x++) {
+        for (let y = 0; y < 4; y++) {
+            if (tetrominos[current_piece_index][rotate(x, y, current_rotation_index)].toUpperCase() === 'X') {
+                field[(current_piece_y + y) * field_width + (current_piece_x + x)] = current_piece_index;
+
+                if (tetrominos[current_piece_index][rotate(x, y, current_rotation_index)] === 'x') {
+                    field[(current_piece_y + y) * field_width + (current_piece_x + x)] = -1 * current_piece_index;
+                }
+            }
+        }
+    }
+}
+
+// Function: erase_current_piece
+// Removes the current tetromino from the field.
+function erase_current_piece() {
+    for (let x = 0; x < 4; x++) {
+        for (let y = 0; y < 4; y++) {
+            if (tetrominos[current_piece_index][rotate(x, y, current_rotation_index)].toUpperCase() === 'X') {
+                field[(current_piece_y + y) * field_width + (current_piece_x + x)] = -8;
+            }
+        }
+    }
+}
+
+// Function: draw_smiley
+// Adds a smiley face sprite to the field at the specified position.
+function draw_smiley(pos_x, pos_y, is_locked = true) {
+    smiley.x = (pos_x - 1) * 30 * scale + x_offset;
+    smiley.y = (pos_y - 1) * 30 * scale + y_offset;
+    smiley.scale.set(scale);
+    app.stage.addChild(smiley);
+
+    if (!is_locked) {
+        block_queue.push(smiley);
+    } else {
+        smiley_queue.push(smiley);
+    }
+}
+
+// Function: print_field
+// Prints the current state of the field to the console for debugging.
+function print_field() {
+    let c_field = "";
+    draw_current_piece();
+    field.forEach((e, i) => {
+        if (i % field_width === 0) c_field += '\n';
+        let x = (e === -8 ? " " : e);
+        c_field += x;
+    });
+    console.log(c_field);
+    erase_current_piece();
 }
