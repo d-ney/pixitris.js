@@ -159,6 +159,8 @@ let input = [0, 0, 0, 0, 0, 0, 0];
 let pointer_down_pos = { x: 0, y: 0 };
 let is_dragging = false;
 let start = false;
+let block_queue = [];
+let smiley_queue = [];
 const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
 const bg = PIXI.Sprite.from('assets/bg.png');
 
