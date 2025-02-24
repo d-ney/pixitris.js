@@ -6,6 +6,7 @@ level indicator text
 fix resizing algo to work on both big and small screens
 fix smileys not spawning on long block
 new level notification
+better score font
 
 */
 
@@ -42,6 +43,13 @@ window.WebFontConfig = {
     },
 };
 
+PIXI.BitmapFont.from("ScoreFont", {
+    fontFamily: "Pixelify Sans",
+    fill: "#F6F3F4",
+    fontSize: 32,
+  });
+
+
 /* eslint-disable */
 // include the web-font loader script
 (function() {
@@ -62,6 +70,9 @@ PIXI.Loader.shared
  .load(setup)
  .load(title);
 
+// listen for the browser telling us that the screen size changed
+window.addEventListener("resize", resize());
+
 
 /*============================
   GAME CONSTANTS & INITIAL STATE
@@ -70,6 +81,9 @@ PIXI.Loader.shared
 // Visual constants and derived constants
 const field_width = 12;
 const field_height = 22;
+
+const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
+const bg = PIXI.Sprite.from('assets/bg.png');
 
 let screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 let screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -81,6 +95,8 @@ let y_offset = screenHeight / 2;
 
 let block_queue = [];
 let smiley_queue = [];
+
+
 
 //initialize field and field borders
 let field = Array(field_width+1 * (field_height+1));
@@ -138,9 +154,9 @@ const tetrominos = [
         "...."];
 
 
-
-// listen for the browser telling us that the screen size changed
-window.addEventListener("resize", resize());
+/*============================
+  RENDERING SYSTEM 
+=============================*/
 
 function resize() {
     
@@ -178,7 +194,6 @@ function resize() {
 //rotate(): emulates rotating a tetromino by accessing its pattern array by using a modified indexing formula.
 //Base formula: i = y * w + x
 //w = 4
-
 function rotate(x, y, r) {
 
     if(r < 1) r *= -1;
@@ -193,7 +208,7 @@ function rotate(x, y, r) {
     return 0;
 }
 
-
+//check_piece_collision(): checks whether a tetronimo's current position is valid
 function check_piece_collision(tetr_type, curr_rotation, x_pos, y_pos) {
     
     //for each field in the tetromino template
@@ -228,9 +243,11 @@ function check_piece_collision(tetr_type, curr_rotation, x_pos, y_pos) {
 }
 
 
+/*============================
+  GAME VARIABLES
+=============================*/
 
-
-//GAME VARIABLES=================================
+// GAME STATE=================================
 let game_over = false;
 let total_cycles = 0;
 let total_pieces = 0;
@@ -241,23 +258,23 @@ let cleared_lines = [];
 let stashed_piece = -1;
 let stashed_this_turn = 0;
 
+// SCORE HANDLING=================================
 let score= 0;
 let highscore = localStorage.getItem("highscore");
 if(highscore == null) localStorage.setItem("highscore", 0);
 //console.log(highscore);
 
-PIXI.BitmapFont.from("ScoreFont", {
-    fontFamily: "Pixelify Sans",
-    fill: "#F6F3F4",
-    fontSize: 32,
-  });
-
 let score_text = new PIXI.BitmapText("" + score,{fontName : 'ScoreFont'});
-
 let highscore_text = new PIXI.BitmapText("" + highscore,{fontName : 'ScoreFont'});
+
 app.stage.addChild(score_text);
 app.stage.addChild(highscore_text);
 
+let score_offset_x = 0;
+let score_offset_y = 0;
+let highscore_offset_y = 0;
+
+// CURRENT PIECE STATE=================================
 let current_piece_index = Math.floor(Math.random()  * 100) % 7;
 let current_rotation_index = 0;
 let current_piece_x = field_width / 2 - 2; //represents default position where pieces will be spawned
@@ -265,18 +282,51 @@ let current_piece_y = 1;
 let grace_period = 0;
 
 
-let input = [0,0,0,0,0,0,0];
 
+
+/*============================
+  INPUT HANDLING
+=============================*/
+
+let input = [0,0,0,0,0,0,0];
 let pointer_down_pos = {x:0,y:0};
 let is_dragging = false;
 let start = false;
-const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
-const bg = PIXI.Sprite.from('assets/bg.png');
 
-
-let score_offset_x = 0;
-let score_offset_y = 0;
-let highscore_offset_y = 0;
+window.addEventListener("keydown",  event => {
+    switch (event.key) {
+        case ' ':
+            //console.log("space pressed");
+            input[0] = 1;
+            break;
+        
+        case 's':
+            //console.log("down pressed");
+            input[1] = 1;
+            break;
+        
+        case 'a':
+            input[2] = 1;
+            //console.log("left pressed");
+            break;
+        case 'd':
+            input[3] = 1;
+            //console.log("right pressed");
+            break;
+        case 'r':
+            input[4] = 1;
+            //console.log("rotate pressed");
+            break;
+        case 'e':
+            input[5] = 1;
+            //console.log("stash piece pressed");
+            break;
+        case 27:
+            //console.log("escape pressed");
+            break;
+    }
+    
+    });
 
 function title() {
 
@@ -346,40 +396,7 @@ function update(delta) {
 
 //INPUT===========================================
     
-    window.addEventListener("keydown",  event => {
-    switch (event.key) {
-        case ' ':
-            //console.log("space pressed");
-            input[0] = 1;
-            break;
-        
-        case 's':
-            //console.log("down pressed");
-            input[1] = 1;
-            break;
-        
-        case 'a':
-            input[2] = 1;
-            //console.log("left pressed");
-            break;
-        case 'd':
-            input[3] = 1;
-            //console.log("right pressed");
-            break;
-        case 'r':
-            input[4] = 1;
-            //console.log("rotate pressed");
-            break;
-        case 'e':
-            input[5] = 1;
-            //console.log("stash piece pressed");
-            break;
-        case 27:
-            //console.log("escape pressed");
-            break;
-    }
     
-    })
 
     
    app.renderer.plugins.interaction.on("pointerdown", (pointer) => {
