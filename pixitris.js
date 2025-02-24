@@ -14,6 +14,7 @@ better score font
 /*============================
   PIXI APPLICATION CONFIGURATION
 =============================*/
+
 // Initialize PIXI application with responsive settings
 const options = {
     backgroundColor: 0xFFE6DB,
@@ -36,7 +37,7 @@ document.body.appendChild(app.view);
 app.ticker.add(update);
 
 
-// Load them google fonts before starting...
+// Initialize fonts
 window.WebFontConfig = {
     google: {
         families: ['Pixelify Sans'],
@@ -77,8 +78,9 @@ const bg = PIXI.Sprite.from('assets/bg.png');
 
 let screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 let screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
 let scale = Math.min(screenWidth / window.innerHeight, screenHeight / window.innerWidth);
-console.log("scale = " + scale);
+//console.log("scale = " + scale);
 
 let x_offset = screenWidth / 2;
 let y_offset = screenHeight / 2;
@@ -162,12 +164,15 @@ window.addEventListener("resize", resize());
 function title() {
 
     titlescreen.anchor.set(0.5);
+
     titlescreen.x =  screenWidth / 2;
     titlescreen.y = screenHeight / 2;
+
     titlescreen.eventMode = 'static';
     
 
     titlescreen.scale.set(scale * 0.25);
+
     app.stage.addChild(titlescreen);
 }
 
@@ -176,9 +181,11 @@ function setup() {
    // draw static elements of the playing field
 
    bg.anchor.set(0.5);
+
    bg.x =  screenWidth / 2;
    bg.y = screenHeight / 2;
    //console.log( "scale = " + scale);
+
    bg.scale.set(scale * 0.25);
    //bg.scale.set(0.25, 0.25 * scale);
 
@@ -435,7 +442,6 @@ function update(delta) {
 
     //MAIN LOGIC===========================================
 
-
     if(game_over) {
          if(score > highscore) localStorage.setItem("highscore", score);    
          app.stop();
@@ -626,21 +632,28 @@ function resize() {
 
 function update_score() {
     
+    //update current score
     app.stage.removeChild(score_text);
+
     score_text = new PIXI.BitmapText( " " + score, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
     score_text.position.x = score_offset_x;
-    score_text.position.y = score_offset_y; 
-    //console.log(score);
+    score_text.position.y = score_offset_y;
+
     score_text.scale.set(scale);
+    //console.log(score);
+
     app.stage.addChild(score_text);
 
+    //update high score
     app.stage.removeChild(highscore_text);
+    
     highscore_text = new PIXI.BitmapText(" " + highscore, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
     highscore_text.position.x = score_offset_x;
     highscore_text.position.y = highscore_offset_y;
+    
     highscore_text.scale.set(scale);
     //console.log(score);
-    //highscore_text.scale.set(scale);
+
     app.stage.addChild(highscore_text);
 
     
@@ -687,7 +700,7 @@ function draw_pieces() {
         for(let y = 1; y < field_height - 1; y++) {
             if(field[y*field_width + x] !=-8) {
                 
-                let block = PIXI.Sprite.from(choose_block_sprite(field[y*field_width + x]));//PIXI.Sprite.from('assets/block/block.png');
+                let block = PIXI.Sprite.from(choose_block_sprite(field[y*field_width + x]));
 
 
                 block_queue.push(block);
