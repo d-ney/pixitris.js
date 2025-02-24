@@ -63,16 +63,6 @@ PIXI.BitmapFont.from("ScoreFont", {
 }());
 /* eslint-enabled */
 
-//load static assets and run the `setup` function when it's done
-PIXI.Loader.shared
- .add("assets/bg.png")
- .add("assets/titlescreen.png")
- .load(setup)
- .load(title);
-
-// listen for the browser telling us that the screen size changed
-window.addEventListener("resize", resize());
-
 
 /*============================
   GAME CONSTANTS & INITIAL STATE
@@ -154,31 +144,62 @@ const tetrominos = [
         "...."];
 
 
+
 /*============================
-  RENDERING SYSTEM 
+  GAME INITIALIZATION
 =============================*/
 
-function resize() {
+//load static assets and run the `setup` function when it's done
+PIXI.Loader.shared
+ .add("assets/bg.png")
+ .add("assets/titlescreen.png")
+ .load(setup)
+ .load(title);
+
+// listen for the browser telling us that the screen size changed
+window.addEventListener("resize", resize());
+
+function title() {
+
+    titlescreen.anchor.set(0.5);
+    titlescreen.x =  screenWidth / 2;
+    titlescreen.y = screenHeight / 2;
+    titlescreen.eventMode = 'static';
     
-     // current screen size
-      screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-      screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-      app.resize(screenWidth, screenHeight);
-
-      // uniform scale for our game
-      if(screenHeight > screenWidth)
-        scale = Math.max(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
-      else
-        scale = Math.min(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
-      
-      scale = Math.min(scale, 1.5);
-
-      x_offset *= scale;
-      y_offset *= scale;
+    titlescreen.scale.set(scale * 0.25);
+    app.stage.addChild(titlescreen);
 }
 
+function setup() {
 
+   // draw static elements of the playing field
+
+   bg.anchor.set(0.5);
+   bg.x =  screenWidth / 2;
+   bg.y = screenHeight / 2;
+   //console.log( "scale = " + scale);
+   bg.scale.set(scale * 0.25);
+   //bg.scale.set(0.25, 0.25 * scale);
+
+   let l = screenWidth / 2;
+   let z = screenHeight / 2;
+   let h = bg.width;
+   let w = bg.height;
+
+   x_offset = l - h/2;
+   y_offset = z - w/2;
+
+   score_text.position.set(bg.position);
+
+   app.stage.addChild(bg);
+
+   score_offset_x = bg.width * 1/4 + bg.position.x;
+   highscore_offset_y = bg.position.y - bg.height * 1.97/5;
+   score_offset_y = bg.position.y - bg.height * 1.05/5;
+
+   update_score();
+}
 
 /*============================
   CORE GAME FUNCTIONS
@@ -251,7 +272,7 @@ function check_piece_collision(tetr_type, curr_rotation, x_pos, y_pos) {
 let game_over = false;
 let total_cycles = 0;
 let total_pieces = 0;
-let gravity_interval = 50;
+let gravity_interval = 180;
 let rotates = 0;
 let cleared_lines = [];
 
@@ -328,78 +349,24 @@ window.addEventListener("keydown",  event => {
     
     });
 
-function title() {
 
-    titlescreen.anchor.set(0.5);
-    titlescreen.x =  screenWidth / 2;
-    titlescreen.y = screenHeight / 2;
-    titlescreen.eventMode = 'static';
-    
-
-    titlescreen.scale.set(scale * 0.25);
-    app.stage.addChild(titlescreen);
-
-}
-
-function setup() {
-
-   // draw_current_piece();
-   // print_field();
-
-   // draw static elements of the playing field
-
-   bg.anchor.set(0.5);
-   bg.x =  screenWidth / 2;
-   bg.y = screenHeight / 2;
-   //console.log( "scale = " + scale);
-   bg.scale.set(scale * 0.25);
-   //bg.scale.set(0.25, 0.25 * scale);
-
-   let l = screenWidth / 2;
-   let z = screenHeight / 2;
-   let h = bg.width;
-   let w = bg.height;
-
-   x_offset = l - h/2;
-   y_offset = z - w/2;
-
-
-//    const block = PIXI.Sprite.from('assets/block/block.png');
-//    block.anchor.set(0.5);
-//    block.x = app.screen.width / 2;
-//    block.y = app.screen.height / 2;
-   //block.scale.set(0.25);
-   score_text.position.set(bg.position);
-
-   app.stage.addChild(bg);
-
-   score_offset_x = bg.width * 1/4 + bg.position.x;
-   highscore_offset_y = bg.position.y - bg.height * 1.97/5;
-   score_offset_y = bg.position.y - bg.height * 1.05/5;
-
-   update_score();
-
-   
-  // app.stage.addChild(block);
-
-
-
-
-}
-
-
+/*============================
+  GAME LOOP
+=============================*/
 function update(delta) {
 
-    app.renderer.plugins.interaction.on('pointerdown', () => {start = true; app.stage.removeChild(titlescreen)});
 
+//TITLE SCENE===========================================
+    
+    app.renderer.plugins.interaction.on('pointerdown', () => {start = true; app.stage.removeChild(titlescreen)});
+    
+    // loop title screen until player clicks to start
     if(!start) return;
 
-//INPUT===========================================
-    
-    
+//MAIN SCENE===========================================
 
-    
-   app.renderer.plugins.interaction.on("pointerdown", (pointer) => {
+    //INPUT HANDLING===========================================    
+    app.renderer.plugins.interaction.on("pointerdown", (pointer) => {
        
         pointer_down_pos = {
             x: pointer.data.global.x,
@@ -409,8 +376,6 @@ function update(delta) {
        is_dragging = true;
 
     });
-
-
 
    app.renderer.plugins.interaction.on('pointermove', (p) => {
 
@@ -468,7 +433,7 @@ function update(delta) {
  
 
 
-//LOGIC===========================================
+    //MAIN LOGIC===========================================
 
 
    if(game_over) {
@@ -558,7 +523,7 @@ function update(delta) {
 
           total_pieces += 1;
           
-          //increase the difficulty by decrementing the gravity interval,
+          // every 10 pieces, increase the difficulty by decrementing the gravity interval,
           if(total_pieces % 10 == 0)
             if(gravity_interval > 10)
                 gravity_interval--;
@@ -583,13 +548,14 @@ function update(delta) {
             }
           }
 
-          //manage score,
+          //manage score
           score += 25;
           if(cleared_lines.length > 0) score += Math.pow(2, cleared_lines.length) * 100
           update_score();
         
           //console.log(smiley_queue);
 
+          //clear completed lines
           if(cleared_lines.length > 0) {
             cleared_lines.forEach(line => {
                 for(let x = 1; x < field_width - 1; x++) {
@@ -623,25 +589,39 @@ function update(delta) {
         }
 
 
-//GRAPHICS========================================
+    //RENDERING========================================
     
-        render();
+        draw_pieces();
     
 
 }
 
-function render() {
+/*============================
+  RENDERING SYSTEM 
+=============================*/
+
+function resize() {
     
-    //Add the canvas that Pixi automatically created for you to the HTML document
-    // document.body.appendChild(app.view);
-    // app.renderer.backgroundColor = 0x061639;
-     //app.renderer.view.style.position = "relative";
+    // current screen size
+     screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+     screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
+     app.resize(screenWidth, screenHeight);
 
-   // print_field();
-    draw_pieces();
-   // draw_current_piece();
+     // uniform scale for our game
+     if(screenHeight > screenWidth)
+       scale = Math.max(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
+     else
+       scale = Math.min(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
+     
+     scale = Math.min(scale, 1.5);
+
+     x_offset *= scale;
+     y_offset *= scale;
 }
+
+
+//TEXT RENDERING========================================
 
 function update_score() {
     
@@ -667,55 +647,7 @@ function update_score() {
     
 }
 
-function draw_pieces() {
-
-    block_queue.forEach(block => {
-        app.stage.removeChild(block);
-    });
-
-    block_queue = [];
-    block_queue.sortableChildren = true;
-
-
-    
-
-    draw_current_piece(false);
-    let count = 0;
-
-    for(let x = 1; x < field_width - 1; x++) {
-        for(let y = 1; y < field_height - 1; y++) {
-            if(field[y*field_width + x] !=-8) {
-                let block = PIXI.Sprite.from(choose_block_sprite(field[y*field_width + x]));//PIXI.Sprite.from('assets/block/block.png');
-               
-                //block.alpha = 0.75;
-
-                block_queue.push(block);
-                //block.anchor.set(0.5);
-                block.scale.set(scale);
-                block.x = (x-1)*30*scale + x_offset;
-                block.y = (y-1)*30*scale + y_offset;
-
-                app.stage.addChild(block);
-
-                if((Math.sign(field[y*field_width + x])) < 0) {
-
-                let smiley = PIXI.Sprite.from('assets/smiley.png');
-                smiley.position.set(block.x, block.y);
-                smiley.scale.set(0.25 * scale);
-                block_queue.push(smiley);
-                smiley.parent = block;
-                smiley.zIndex = 1;
-                app.stage.addChild(smiley);
-                }
-            
-
-                //console.log("block x: " + x + ", y: " + y);
-            }
-        }
-    }
-    
-    erase_current_piece(); 
-}
+//PIECE RENDERING========================================
 
 function choose_block_sprite(block_type) {
     switch(Math.abs(block_type)) {
@@ -738,6 +670,55 @@ function choose_block_sprite(block_type) {
 
 }
 
+function draw_pieces() {
+
+    block_queue.forEach(block => {
+        app.stage.removeChild(block);
+    });
+
+    block_queue = [];
+    block_queue.sortableChildren = true;
+
+    draw_current_piece(false);
+    let count = 0;
+
+    for(let x = 1; x < field_width - 1; x++) {
+        for(let y = 1; y < field_height - 1; y++) {
+            if(field[y*field_width + x] !=-8) {
+                
+                let block = PIXI.Sprite.from(choose_block_sprite(field[y*field_width + x]));//PIXI.Sprite.from('assets/block/block.png');
+
+
+                block_queue.push(block);
+
+
+                block.scale.set(scale);
+                block.x = (x-1)*30*scale + x_offset;
+                block.y = (y-1)*30*scale + y_offset;
+
+                app.stage.addChild(block);
+
+                // render smileys on top of blocks
+                if((Math.sign(field[y*field_width + x])) < 0) {
+
+                    let smiley = PIXI.Sprite.from('assets/smiley.png');
+                    smiley.position.set(block.x, block.y);
+                    smiley.scale.set(0.25 * scale);
+                    block_queue.push(smiley);
+                    smiley.parent = block;
+                    smiley.zIndex = 1;
+                    app.stage.addChild(smiley);
+                }
+            
+
+                //console.log("block x: " + x + ", y: " + y);
+            }
+        }
+    }
+    
+    erase_current_piece(); 
+}
+
 
 function draw_current_piece(is_locked = true) {
     for(let x = 0; x < 4; x++) {
@@ -747,8 +728,6 @@ function draw_current_piece(is_locked = true) {
 
                  if(tetrominos[current_piece_index][(rotate(x,y, current_rotation_index))] == 'x')
                     field[(current_piece_y + y) * field_width + (current_piece_x + x)] = -1 * current_piece_index;
-                //     draw_smiley((current_piece_x + x), ((current_piece_y + y)), is_locked);
-                
 
             }
         }
@@ -765,36 +744,24 @@ function erase_current_piece() {
     }
 }
 
-function draw_smiley( pos_x, pos_y, is_locked = true) {
 
+/*============================
+  DEBUG FUNCTIONS
+=============================*/
 
-   
-    smiley.x = (pos_x-1)*30*scale + x_offset;
-    smiley.y = (pos_y-1)*30*scale + y_offset;
-    //smiley.alpha = 0.75;
-    smiley.scale.set(scale);
-    app.stage.addChild(smiley);
+// function print_field() {
+//     let c_field = "";
+//     draw_current_piece();
+//     field.forEach((e, i) => {
+//         if( i % (field_width) == 0)
+//             c_field+='\n';
 
-     if(!is_locked) block_queue.push(smiley)
-     else smiley_queue.push(smiley);
-    
-
-
-}
-
-function print_field() {
-    let c_field = "";
-    draw_current_piece();
-    field.forEach((e, i) => {
-        if( i % (field_width) == 0)
-            c_field+='\n';
-            //console.log(e);
-        let x = (e == -8 ? " " : e)
-        c_field+=x; 
-    })
-    console.log(c_field);
-    erase_current_piece();
-}
+//         let x = (e == -8 ? " " : e)
+//         c_field+=x; 
+//     })
+//     console.log(c_field);
+//     erase_current_piece();
+// }
 
 
 
