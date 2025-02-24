@@ -1,4 +1,19 @@
-//Create a Pixi Application
+/*TODO:
+Game over screen
+hold piece indicator
+refactor
+level indicator text
+fix resizing algo to work on both big and small screens
+fix smileys not spawning on long block
+new level notification
+
+*/
+
+
+/*============================
+  PIXI APPLICATION CONFIGURATION
+=============================*/
+// Initialize PIXI application with responsive settings
 const options = {
     backgroundColor: 0xFFE6DB,
     resizeTo: window,
@@ -10,9 +25,14 @@ const options = {
     eventMode: 'static',
     antialias: false,
     ROUND_PIXELS: true
-    
+};
 
-}
+// Configure global PIXI settings
+PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+const app = new PIXI.Application(options);
+app.renderer.view.style.display = "block";
+document.body.appendChild(app.view);
+app.ticker.add(update);
 
 
 // Load them google fonts before starting...
@@ -35,24 +55,19 @@ window.WebFontConfig = {
 }());
 /* eslint-enabled */
 
+//load static assets and run the `setup` function when it's done
+PIXI.Loader.shared
+ .add("assets/bg.png")
+ .add("assets/titlescreen.png")
+ .load(setup)
+ .load(title);
 
 
-PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
-const app = new PIXI.Application(options);
-app.renderer.view.style.display = "block";
+/*============================
+  GAME CONSTANTS & INITIAL STATE
+=============================*/
 
-
-
-
-//var target = new PIXI.DisplayObjectContainer();
-//target.setInteractive(true);
-//app.stage.addChild(target);
-
-
-document.body.appendChild(app.view);
-app.ticker.add(update);
-
-
+// Visual constants and derived constants
 const field_width = 12;
 const field_height = 22;
 
@@ -63,6 +78,65 @@ console.log("scale = " + scale);
 
 let x_offset = screenWidth / 2;
 let y_offset = screenHeight / 2;
+
+let block_queue = [];
+let smiley_queue = [];
+
+//initialize field and field borders
+let field = Array(field_width+1 * (field_height+1));
+for(let x = 0; x < field_width; x++)
+    for(y = 0; y < field_height; y++)
+        field[x + y*field_width] = 
+            ( x == 0 || x == field_width - 1
+                || y == field_height - 1 ? -9: -8 )
+
+
+ // Constant string array to contain patterns for the six main tetrominos
+//NOTE: This array is one-dimensional. This allows the patterns in the array to be easily 'rotated' by changing the
+//formula used to access the elements of the array.
+const tetrominos = [
+    // Larry the long tetromino
+        "..X."+
+        "..X."+
+        "..X."+
+        "..x.",
+    
+    // Zulu the Z tetromino
+        "..x."+
+        ".XX."+
+        ".X.."+
+        "....",
+
+    // Sully the S tetromino    
+        ".x.."+
+        ".XX."+
+        "..X."+
+        "....",
+
+    // Stan the square tetromino
+        "...."+
+        ".Xx."+
+        ".XX."+
+        "....",
+
+    //Wah the reverse L tetromino
+        "...."+
+        ".xX."+
+        "..X."+
+        "..X.",
+    
+    //Luigi the L tetromino
+        "...."+
+        ".Xx."+
+        ".X.."+
+        ".X..",
+        
+    //Terry the T tetromino
+        ".x.."+
+        ".XX."+
+        ".X.."+
+        "...."];
+
 
 
 // listen for the browser telling us that the screen size changed
@@ -88,66 +162,18 @@ function resize() {
       y_offset *= scale;
 }
 
-let block_queue = [];
-let smiley_queue = [];
-
-let field = Array(field_width+1 * (field_height+1));
-for(let x = 0; x < field_width; x++)
-    for(y = 0; y < field_height; y++)
-        field[x + y*field_width] = 
-            ( x == 0 || x == field_width - 1
-                || y == field_height - 1 ? -9: -8 )
-
-//Create a constant string array to contain patterns for the six main tetrominos
-//NOTE: This array is one-dimensional. This allows the patterns in the array to be easily 'rotated' by changing the
-//formula used to access the elements of the array.
-
-const tetrominos = [
-                // Larry the long tetromino
-                    "..X."+
-                    "..X."+
-                    "..X."+
-                    "..x.",
-                
-                // Zulu the Z tetromino
-                    "..x."+
-                    ".XX."+
-                    ".X.."+
-                    "....",
-
-                // Sully the S tetromino    
-                    ".x.."+
-                    ".XX."+
-                    "..X."+
-                    "....",
-
-                // Stan the square tetromino
-                    "...."+
-                    ".Xx."+
-                    ".XX."+
-                    "....",
-
-                //Wah the reverse L tetromino
-                    "...."+
-                    ".xX."+
-                    "..X."+
-                    "..X.",
-                
-                //Luigi the L tetromino
-                    "...."+
-                    ".Xx."+
-                    ".X.."+
-                    ".X..",
-                    
-                //Terry the T tetromino
-                    ".x.."+
-                    ".XX."+
-                    ".X.."+
-                    "...."];
 
 
-
-
+/*============================
+  CORE GAME FUNCTIONS
+=============================*/
+/**
+ * Calculates rotated index for tetromino shapes
+ * @param {number} x - Local X coordinate
+ * @param {number} y - Local Y coordinate
+ * @param {number} rotation - Rotation state (0-3)
+ * @returns {number} Index in tetromino shape string
+ */
 
 //rotate(): emulates rotating a tetromino by accessing its pattern array by using a modified indexing formula.
 //Base formula: i = y * w + x
@@ -202,12 +228,6 @@ function check_piece_collision(tetr_type, curr_rotation, x_pos, y_pos) {
 }
 
 
-//load an image and run the `setup` function when it's done
-PIXI.Loader.shared
- .add("assets/bg.png")
- .add("assets/titlescreen.png")
- .load(setup)
- .load(title);
 
 
 //GAME VARIABLES=================================
