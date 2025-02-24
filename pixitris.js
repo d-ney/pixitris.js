@@ -377,7 +377,7 @@ function update(delta) {
 
     });
 
-   app.renderer.plugins.interaction.on('pointermove', (p) => {
+    app.renderer.plugins.interaction.on('pointermove', (p) => {
 
         if(is_dragging && (Math.abs(pointer_down_pos.x - p.data.global.x) > 60)) {
             if(pointer_down_pos.x - p.data.global.x > 0) {
@@ -436,15 +436,15 @@ function update(delta) {
     //MAIN LOGIC===========================================
 
 
-   if(game_over) {
-        if(score > highscore) localStorage.setItem("highscore", score);    
-        app.stop();
-   }
+    if(game_over) {
+         if(score > highscore) localStorage.setItem("highscore", score);    
+         app.stop();
+    }
 
    total_cycles++;
     
    //Piece movement
-        if (input[0]){
+    if (input[0]){
             while(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x, current_piece_y + 1)){
                 current_piece_y += 1;
                 //console.log("left pressed");
@@ -452,7 +452,7 @@ function update(delta) {
             input[0] = 0;
             input[4] = 0;
         }
-        if(input[1]){
+    if(input[1]){
             if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x, current_piece_y + 1)){
                 current_piece_y += 1;
                 //console.log("left pressed");
@@ -460,7 +460,7 @@ function update(delta) {
                 input[4] = 0;
             }
         }
-        if(input[2]){
+    if(input[2]){
                 if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x - 1, current_piece_y)){
                     current_piece_x -= 1;
                     //console.log("left pressed");
@@ -468,7 +468,7 @@ function update(delta) {
                     input[4] = 0;
                 }
         }
-        if(input[3]){
+    if(input[3]){
             if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x + 1, current_piece_y)){
                 current_piece_x += 1;
                 //console.log("right pressed");
@@ -476,12 +476,12 @@ function update(delta) {
                 input[4] = 0;
             }
         }
-        if(input[4]){
+    if(input[4]){
            current_rotation_index = current_rotation_index + (check_piece_collision(current_piece_index, current_rotation_index + 1, current_piece_x, current_piece_y) || 3 * check_piece_collision(current_piece_index, current_rotation_index + 3, current_piece_x, current_piece_y));
            input[4] = 0;
         }
-        if(input[5]) {
-         if(!stashed_this_turn){
+    if(input[5]) {
+        if(!stashed_this_turn){
            //console.log("in stash piece");
 
            //console.log("stash piece = " + stashed_piece + ", current piece = " + current_piece_index);
@@ -506,6 +506,7 @@ function update(delta) {
         grace_period --;
         return;
     }
+
     //every time the total update cycle equals the interval decided by the game's current difficulty,
     if(!(total_cycles % gravity_interval))
 
@@ -523,7 +524,7 @@ function update(delta) {
 
           total_pieces += 1;
           
-          // every 10 pieces, increase the difficulty by decrementing the gravity interval,
+          //every 10 pieces, increase the difficulty by decrementing the gravity interval,
           if(total_pieces % 10 == 0)
             if(gravity_interval > 10)
                 gravity_interval--;
@@ -555,8 +556,8 @@ function update(delta) {
         
           //console.log(smiley_queue);
 
-          //clear completed lines
-          if(cleared_lines.length > 0) {
+        //clear completed lines
+        if(cleared_lines.length > 0) {
             cleared_lines.forEach(line => {
                 for(let x = 1; x < field_width - 1; x++) {
                     for(let y = line; y > 0; y--) {
@@ -569,24 +570,24 @@ function update(delta) {
 
             
             cleared_lines = [];
-          }
-          
-          //choose the next piece,
-          current_piece_index = Math.floor(Math.random()  * 100) % 7;
-
-          current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
-          current_piece_y = 1;
-          current_rotation_index = 0;
-          
-
-          //and check for game over if appropriate.
-          game_over = !(check_piece_collision(current_piece_index, current_rotation_index,
-                                                            current_piece_x, current_piece_y));
-    
-          //reset flags
-          stashed_this_turn = 0;
-          grace_period = 4;
         }
+          
+        //choose the next piece,
+        current_piece_index = Math.floor(Math.random()  * 100) % 7;
+
+        current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
+        current_piece_y = 1;
+        current_rotation_index = 0;
+        
+
+        //and check for game over if appropriate.
+        game_over = !(check_piece_collision(current_piece_index, current_rotation_index,
+                                                        current_piece_x, current_piece_y));
+
+        //reset flags
+        stashed_this_turn = 0;
+        grace_period = 4;
+    }
 
 
     //RENDERING========================================
