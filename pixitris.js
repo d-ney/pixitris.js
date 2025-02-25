@@ -495,7 +495,7 @@ function update(delta) {
            let temp_index = stashed_piece;
 
            if(temp_index == -1)
-            temp_index = Math.floor(Math.random() * 100) % 7;
+            temp_index = Math.max(Math.floor(Math.random() * 100) % 7, 1);
 
            stashed_piece = current_piece_index;
            current_piece_index = temp_index;
@@ -579,7 +579,7 @@ function update(delta) {
         }
           
         //choose the next piece,
-        current_piece_index = Math.floor(Math.random()  * 100) % 7;
+        current_piece_index =Math.floor(Math.random()  * 100) % 7;
 
         current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
         current_piece_y = 1;
@@ -610,21 +610,17 @@ function update(delta) {
 function resize() {
     
     // current screen size
-     screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-     screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-     app.resize(screenWidth, screenHeight);
+    app.resize(screenWidth, screenHeight);
 
      // uniform scale for our game
-     if(screenHeight > screenWidth)
-       scale = Math.max(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
-     else
-       scale = Math.min(screenWidth / window.innerHeight , screenHeight / window.innerWidth);
-     
-     scale = Math.min(scale, 1.5);
+   
+    scale = Math.max(screenWidth / window.innerWidth , screenHeight / window.innerHeight);
 
-     x_offset *= scale;
-     y_offset *= scale;
+    x_offset *= scale;
+    y_offset *= scale;
 }
 
 
@@ -713,7 +709,7 @@ function draw_pieces() {
                 app.stage.addChild(block);
 
                 // render smileys on top of blocks
-                if((Math.sign(field[y*field_width + x])) < 0) {
+                if((field[y*field_width + x].toLocaleString()[0] === "-")  ) {
 
                     let smiley = PIXI.Sprite.from('assets/smiley.png');
                     smiley.position.set(block.x, block.y);
