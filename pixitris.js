@@ -1,10 +1,10 @@
 /*TODO:
 Game over screen
 hold piece indicator
-refactor
+***refactor
 level indicator text
-fix resizing algo to work on both big and small screens
-fix smileys not spawning on long block
+***fix resizing algo to work on both big and small screens
+***fix smileys not spawning on long block
 new level notification
 better score font
 
