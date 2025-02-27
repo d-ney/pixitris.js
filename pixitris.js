@@ -19,10 +19,8 @@ better score font
 const options = {
     backgroundColor: 0xFFE6DB,
     resizeTo: window,
-    //resolution: window.devicePixelRatio,
-    //autoResize: true,
-
-    resolution: window.devicePixelRatio || 1,
+    
+    //resolution: window.devicePixelRatio || 1,
     autoDensity: true,
     eventMode: 'static',
     antialias: false,
@@ -79,11 +77,11 @@ const bg = PIXI.Sprite.from('assets/bg.png');
 let screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 let screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
-let scale = Math.min(screenWidth / window.innerHeight, screenHeight / window.innerWidth);
+let scale = Math.min(screenWidth / window.innerWidth, screenHeight / window.innerHeight);
 //console.log("scale = " + scale);
 
-let x_offset = screenWidth / 2;
-let y_offset = screenHeight / 2;
+let x_offset = (screenWidth);
+let y_offset = (screenHeight);
 
 let block_queue = [];
 let smiley_queue = [];
@@ -171,7 +169,7 @@ function title() {
     titlescreen.eventMode = 'static';
     
 
-    titlescreen.scale.set(scale * 0.25);
+    titlescreen.scale.set(scale / 3);
 
     app.stage.addChild(titlescreen);
 }
@@ -186,7 +184,7 @@ function setup() {
    bg.y = screenHeight / 2;
    //console.log( "scale = " + scale);
 
-   bg.scale.set(scale * 0.25);
+   bg.scale.set(scale / 3);
    //bg.scale.set(0.25, 0.25 * scale);
 
    let l = screenWidth / 2;
@@ -610,8 +608,8 @@ function update(delta) {
 function resize() {
     
     // current screen size
-    screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-    screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+    screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth);
+    screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
 
     app.resize(screenWidth, screenHeight);
 
@@ -702,9 +700,9 @@ function draw_pieces() {
                 block_queue.push(block);
 
 
-                block.scale.set(scale);
-                block.x = (x-1)*30*scale + x_offset;
-                block.y = (y-1)*30*scale + y_offset;
+                block.scale.set(scale * 1.33);
+                block.x = (x-1)*40 + x_offset;
+                block.y = (y-1)*40 + y_offset;
 
                 app.stage.addChild(block);
 
