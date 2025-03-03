@@ -67,12 +67,36 @@ PIXI.BitmapFont.from("ScoreFont", {
   GAME CONSTANTS & INITIAL STATE
 =============================*/
 
+const state = {
+    TITLE: 'title',
+    PLAYING: 'playing',
+    OPTIONS: 'options',
+    GAME_OVER: 'gameOver'
+};
+
+
+// Loading constant assets
+//load static assets and run the `setup` function when it's done
+PIXI.Loader.shared
+ .add("assets/bg.png")
+ .add("assets/titlescreen.png");
+
+//const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
+const bg = PIXI.Sprite.from('assets/bg.png');
+
+let currentState = state.TITLE;
+
+// Game container to hold different elements
+const gameContainer = new PIXI.Container();
+app.stage.addChild(gameContainer);
+
+// UI container for buttons and text
+const uiContainer = new PIXI.Container();
+app.stage.addChild(uiContainer);
+
 // Visual constants and derived constants
 const field_width = 12;
 const field_height = 22;
-
-const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
-const bg = PIXI.Sprite.from('assets/bg.png');
 
 let screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 let screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -90,12 +114,18 @@ let smiley_queue = [];
 
 //initialize field and field borders
 let field = Array(field_width+1 * (field_height+1));
+
+initialize_field(field);
+
+setupTitle();
+
+function initialize_field(field) {
 for(let x = 0; x < field_width; x++)
     for(y = 0; y < field_height; y++)
         field[x + y*field_width] = 
             ( x == 0 || x == field_width - 1
                 || y == field_height - 1 ? -9: -8 )
-
+            }
 
  // Constant string array to contain patterns for the six main tetrominos
 //NOTE: This array is one-dimensional. This allows the patterns in the array to be easily 'rotated' by changing the
@@ -149,32 +179,33 @@ const tetrominos = [
   GAME INITIALIZATION
 =============================*/
 
-//load static assets and run the `setup` function when it's done
-PIXI.Loader.shared
- .add("assets/bg.png")
- .add("assets/titlescreen.png")
- .load(setup)
- .load(title);
+function setupTitle() {
 
-// listen for the browser telling us that the screen size changed
-window.addEventListener("resize", resize());
-
-function title() {
-
+    const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
     titlescreen.anchor.set(0.5);
 
     titlescreen.x =  screenWidth / 2;
     titlescreen.y = screenHeight / 2;
 
-    titlescreen.eventMode = 'static';
     
 
     titlescreen.scale.set(scale / 3);
+    titlescreen.interactive = true;
+    //titlescreen.buttonMode = true;
+    titlescreen.on('pointerdown', (pointer) => transitionToPlaying());
+    gameContainer.addChild(titlescreen);
+    
 
-    app.stage.addChild(titlescreen);
+    //app.renderer.plugins.interaction.on("pointerup", (pointer) => {transitionToPlaying();})
+
+    console.log("setupTitle called");
 }
 
-function setup() {
+function setupPlayfield() {
+
+    // Clear containers
+    gameContainer.removeChildren();
+    uiContainer.removeChildren();
 
    // draw static elements of the playing field
 
@@ -197,13 +228,143 @@ function setup() {
 
    score_text.position.set(bg.position);
 
-   app.stage.addChild(bg);
+   gameContainer.addChild(bg);
 
    score_offset_x = bg.width * 1/4 + bg.position.x;
    highscore_offset_y = bg.position.y - bg.height * 1.97/5;
    score_offset_y = bg.position.y - bg.height * 1.05/5;
 
    update_score();
+ 
+
+}
+
+function setupGameOver() {
+    // Create semi-transparent overlay
+    const overlay = new PIXI.Graphics();
+    overlay.beginFill(0x000000, 0.7);
+    overlay.drawRect(0, 0, app.screen.width, app.screen.height);
+    overlay.endFill();
+    uiContainer.addChild(overlay);
+    
+    // Create game over text
+    const gameOverText = new PIXI.Text('GAME OVER', {
+        fontFamily: 'Arial',
+        fontSize: 64,
+        fill: 0xff0000,
+        align: 'center'
+    });
+    gameOverText.anchor.set(0.5);
+    gameOverText.x = app.screen.width / 2;
+    gameOverText.y = app.screen.height / 3;
+    uiContainer.addChild(gameOverText);
+    
+    // Create score text
+    const finalScoreText = new PIXI.Text(`Final Score: ${score}`, {
+        fontFamily: 'Arial',
+        fontSize: 32,
+        fill: 0xffffff,
+        align: 'center'
+    });
+    finalScoreText.anchor.set(0.5);
+    finalScoreText.x = app.screen.width / 2;
+    finalScoreText.y = app.screen.height / 2 - 40;
+    uiContainer.addChild(finalScoreText);
+    
+    // Create replay button
+    const replayButton = new PIXI.Graphics();
+    replayButton.beginFill(0x66CCFF);
+    replayButton.drawRoundedRect(0, 0, 200, 50, 15);
+    replayButton.endFill();
+    replayButton.x = app.screen.width / 2 - 100;
+    replayButton.y = app.screen.height / 2 + 30;
+    replayButton.interactive = true;
+    replayButton.buttonMode = true;
+    replayButton.on('pointerdown', () => {resetGame(); transitionToPlaying()});
+    uiContainer.addChild(replayButton);
+    
+    // Replay button text
+    const replayText = new PIXI.Text('Play Again', {
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0x000000
+    });
+    replayText.anchor.set(0.5);
+    replayText.x = replayButton.width / 2;
+    replayText.y = replayButton.height / 2;
+    replayButton.addChild(replayText);
+    
+    // Create main menu button
+    const menuButton = new PIXI.Graphics();
+    menuButton.beginFill(0xCCCCCC);
+    menuButton.drawRoundedRect(0, 0, 200, 50, 15);
+    menuButton.endFill();
+    menuButton.x = app.screen.width / 2 - 100;
+    menuButton.y = app.screen.height / 2 + 100;
+    menuButton.interactive = true;
+    menuButton.buttonMode = true;
+    menuButton.on('pointerdown', transitionToTitle);
+    uiContainer.addChild(menuButton);
+    
+    // Menu button text
+    const menuText = new PIXI.Text('Main Menu', {
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0x000000
+    });
+    menuText.anchor.set(0.5);
+    menuText.x = menuButton.width / 2;
+    menuText.y = menuButton.height / 2;
+    menuButton.addChild(menuText);
+}
+
+function resetGame() {
+
+    // Clear containers
+    
+    gameContainer.removeChildren();
+    uiContainer.removeChildren();
+    game_over = false;
+    total_cycles = 0;
+    total_pieces = 0;
+    gravity_interval = 180;
+    rotates = 0;
+    cleared_lines = [];
+
+    stashed_piece = -1;
+    stashed_this_turn = 0;
+
+    score = 0;
+
+    initialize_field(field);
+}
+
+// listen for the browser telling us that the screen size changed
+window.addEventListener("resize", resize());
+
+/*============================
+  GAME STATE FUNCTIONS
+=============================*/
+
+function transitionToTitle() {
+    resetGame();
+    currentState = state.TITLE;
+    setupTitle();
+}
+
+function transitionToPlaying() {
+    currentState = state.PLAYING;
+    setupPlayfield();
+}
+
+function transitionToPaused() {
+    currentState = state.PAUSED;
+    setupPause();
+}
+
+function transitionToGameOver() {
+    currentState = state.GAME_OVER;
+    setupGameOver();
 }
 
 /*============================
@@ -361,12 +522,31 @@ window.addEventListener("keydown",  event => {
 function update(delta) {
 
 
-//TITLE SCENE===========================================
+    switch (currentState) {
+        case state.TITLE:
+            updateTitleScreen(delta);
+            break;
+        case state.PLAYING:
+            updatePlaying(delta);
+            break;
+        case state.PAUSED:
+            // No updates during paused state
+            break;
+        case state.GAME_OVER:
+            updateGameOver(delta);
+            break;
+    }
+
+}
+
+    // State-specific update functions
+function updateTitleScreen(delta) {
+    // Animate background or other title screen elements
     
-    app.renderer.plugins.interaction.on('pointerdown', () => {start = true; app.stage.removeChild(titlescreen)});
-    
-    // loop title screen until player clicks to start
-    if(!start) return;
+}
+
+function updatePlaying(delta) {
+
 
 //MAIN SCENE===========================================
 
@@ -439,11 +619,6 @@ function update(delta) {
 
 
     //MAIN LOGIC===========================================
-
-    if(game_over) {
-         if(score > highscore) localStorage.setItem("highscore", score);    
-         app.stop();
-    }
 
    total_cycles++;
     
@@ -585,8 +760,9 @@ function update(delta) {
         
 
         //and check for game over if appropriate.
-        game_over = !(check_piece_collision(current_piece_index, current_rotation_index,
-                                                        current_piece_x, current_piece_y));
+        if(!(check_piece_collision(current_piece_index, current_rotation_index,
+                                                        current_piece_x, current_piece_y)))
+            transitionToGameOver();
 
         //reset flags
         stashed_this_turn = 0;
@@ -598,8 +774,13 @@ function update(delta) {
     
         draw_pieces();
     
+    }
 
-}
+    function updateGameOver() {
+        game_over = true;
+        
+    }
+
 
 /*============================
   RENDERING SYSTEM 
@@ -681,7 +862,7 @@ function choose_block_sprite(block_type) {
 function draw_pieces() {
 
     block_queue.forEach(block => {
-        app.stage.removeChild(block);
+        gameContainer.removeChild(block);
     });
 
     block_queue = [];
@@ -704,7 +885,7 @@ function draw_pieces() {
                 block.x = (x-1)*40 + x_offset;
                 block.y = (y-1)*40 + y_offset;
 
-                app.stage.addChild(block);
+                gameContainer.addChild(block);
 
                 // render smileys on top of blocks
                 if((field[y*field_width + x].toLocaleString()[0] === "-")  ) {
@@ -715,7 +896,7 @@ function draw_pieces() {
                     block_queue.push(smiley);
                     smiley.parent = block;
                     smiley.zIndex = 1;
-                    app.stage.addChild(smiley);
+                    gameContainer.addChild(smiley);
                 }
             
 
