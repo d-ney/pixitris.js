@@ -42,12 +42,6 @@ window.WebFontConfig = {
     },
 };
 
-PIXI.BitmapFont.from("ScoreFont", {
-    fontFamily: "Pixelify Sans",
-    fill: "#F6F3F4",
-    fontSize: 32,
-  });
-
 
 /* eslint-disable */
 // include the web-font loader script
@@ -75,11 +69,22 @@ const state = {
 };
 
 
+const score_font = new PIXI.TextStyle( {
+    fontFamily: "Pixelify Sans",
+    fill: "#F6F3F4",
+    fontSize: 32,
+    dropShadow: true,
+    dropShadowColor: "#9D8189",
+    dropShadowBlur: 0
+    
+  });
+
 // Loading constant assets
 //load static assets and run the `setup` function when it's done
 PIXI.Loader.shared
  .add("assets/bg.png")
  .add("assets/titlescreen.png");
+
 
 //const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
 const bg = PIXI.Sprite.from('assets/bg.png');
@@ -191,7 +196,6 @@ function setupTitle() {
 
     titlescreen.scale.set(scale / 3);
     titlescreen.interactive = true;
-    //titlescreen.buttonMode = true;
     titlescreen.on('pointerdown', (pointer) => transitionToPlaying());
     gameContainer.addChild(titlescreen);
     
@@ -232,7 +236,7 @@ function setupPlayfield() {
 
    score_offset_x = bg.width * 1/4 + bg.position.x;
    highscore_offset_y = bg.position.y - bg.height * 1.97/5;
-   score_offset_y = bg.position.y - bg.height * 1.05/5;
+   score_offset_y = bg.position.y - bg.height * 1.025/5;
 
    update_score();
  
@@ -249,7 +253,7 @@ function setupGameOver() {
     
     // Create game over text
     const gameOverText = new PIXI.Text('GAME OVER', {
-        fontFamily: 'Arial',
+        fontFamily: 'Pixelify Sans',
         fontSize: 64,
         fill: 0xff0000,
         align: 'center'
@@ -261,7 +265,7 @@ function setupGameOver() {
     
     // Create score text
     const finalScoreText = new PIXI.Text(`Final Score: ${score}`, {
-        fontFamily: 'Arial',
+        fontFamily: 'Pixelify Sans',
         fontSize: 32,
         fill: 0xffffff,
         align: 'center'
@@ -285,7 +289,7 @@ function setupGameOver() {
     
     // Replay button text
     const replayText = new PIXI.Text('Play Again', {
-        fontFamily: 'Arial',
+        fontFamily: 'Pixelify Sans',
         fontSize: 24,
         fill: 0x000000
     });
@@ -308,7 +312,7 @@ function setupGameOver() {
     
     // Menu button text
     const menuText = new PIXI.Text('Main Menu', {
-        fontFamily: 'Arial',
+        fontFamily: 'Pixelify Sans',
         fontSize: 24,
         fill: 0x000000
     });
@@ -451,11 +455,11 @@ let highscore = localStorage.getItem("highscore");
 if(highscore == null) localStorage.setItem("highscore", 0);
 //console.log(highscore);
 
-let score_text = new PIXI.BitmapText("" + score,{fontName : 'ScoreFont'});
-let highscore_text = new PIXI.BitmapText("" + highscore,{fontName : 'ScoreFont'});
+let score_text = new PIXI.Text(`${score}` , score_font);
+let highscore_text = new PIXI.Text(`${highscore}` , score_font);
 
-app.stage.addChild(score_text);
-app.stage.addChild(highscore_text);
+uiContainer.addChild(score_text);
+uiContainer.addChild(highscore_text);
 
 let score_offset_x = 0;
 let score_offset_y = 0;
@@ -808,28 +812,28 @@ function resize() {
 function update_score() {
     
     //update current score
-    app.stage.removeChild(score_text);
+    uiContainer.removeChild(score_text);
 
-    score_text = new PIXI.BitmapText( " " + score, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
+    score_text = new PIXI.Text( " " + score, score_font);  
     score_text.position.x = score_offset_x;
     score_text.position.y = score_offset_y;
 
     score_text.scale.set(scale);
     //console.log(score);
 
-    app.stage.addChild(score_text);
+    uiContainer.addChild(score_text);
 
     //update high score
-    app.stage.removeChild(highscore_text);
+    uiContainer.removeChild(highscore_text);
     
-    highscore_text = new PIXI.BitmapText(" " + highscore, {fontName : 'ScoreFont', fontSize: 28, fill : 0xF6F3F4, stroke : 0xCAB9BF, strokeThickness: 5, align : 'left'});  
+    highscore_text = new PIXI.Text(" " + highscore, score_font);  
     highscore_text.position.x = score_offset_x;
     highscore_text.position.y = highscore_offset_y;
     
     highscore_text.scale.set(scale);
     //console.log(score);
 
-    app.stage.addChild(highscore_text);
+    uiContainer.addChild(highscore_text);
 
     
 
