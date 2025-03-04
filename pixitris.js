@@ -224,19 +224,33 @@ function setupPlayfield() {
 
    let l = screenWidth / 2;
    let z = screenHeight / 2;
-   let h = bg.width;
-   let w = bg.height;
+   let w = bg.width;
+   let h = bg.height;
 
-   x_offset = l - h/2;
-   y_offset = z - w/2;
+   x_offset = l - w/2;
+   y_offset = z - h/2;
 
    score_text.position.set(bg.position);
 
    gameContainer.addChild(bg);
 
-   score_offset_x = bg.width * 1/4 + bg.position.x;
-   highscore_offset_y = bg.position.y - bg.height * 1.97/5;
-   score_offset_y = bg.position.y - bg.height * 1.025/5;
+   score_offset_x = w * 1/4 + bg.position.x;
+   highscore_offset_y = bg.position.y - h * 1.97/5;
+   score_offset_y = bg.position.y - h * 1.025/5;
+
+   let hold_button = new PIXI.Graphics();
+   hold_button.beginFill(0x000000, 1);
+   hold_button.drawRect(screenWidth - x_offset - (w/4), screenHeight - y_offset - (h/4.5), 250 * scale, 250 * scale);
+   hold_button.endFill();
+   hold_button.position.x -= hold_button.width/2;
+   hold_button.position.y -= hold_button.height/2;
+
+   hold_button.renderable = false;
+   hold_button.interactive = true;
+   hold_button.buttonMode = true;
+   hold_button.on('pointerdown', () => {input[5] = 1});
+   uiContainer.addChild(hold_button);
+
 
    update_score();
  
@@ -635,7 +649,7 @@ function updatePlaying(delta) {
             input[0] = 0;
             input[4] = 0;
         }
-    if(input[1]){
+    else if(input[1]){
             if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x, current_piece_y + 1)){
                 current_piece_y += 1;
                 //console.log("left pressed");
@@ -643,7 +657,7 @@ function updatePlaying(delta) {
                 input[4] = 0;
             }
         }
-    if(input[2]){
+    else if(input[2]){
                 if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x - 1, current_piece_y)){
                     current_piece_x -= 1;
                     //console.log("left pressed");
@@ -651,7 +665,7 @@ function updatePlaying(delta) {
                     input[4] = 0;
                 }
         }
-    if(input[3]){
+    else if(input[3]){
             if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x + 1, current_piece_y)){
                 current_piece_x += 1;
                 //console.log("right pressed");
@@ -659,11 +673,11 @@ function updatePlaying(delta) {
                 input[4] = 0;
             }
         }
-    if(input[4]){
+    else if(input[4]){
            current_rotation_index = current_rotation_index + (check_piece_collision(current_piece_index, current_rotation_index + 1, current_piece_x, current_piece_y) || 3 * check_piece_collision(current_piece_index, current_rotation_index + 3, current_piece_x, current_piece_y));
            input[4] = 0;
         }
-    if(input[5]) {
+    else if(input[5]) {
         if(!stashed_this_turn){
            //console.log("in stash piece");
 
