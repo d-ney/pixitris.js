@@ -7,6 +7,7 @@ level indicator text
 ***fix smileys not spawning on long block
 new level notification
 better score font
+BUG: Pushing a piece left when there's something blocking it from completing move to left, piece gets stuck
 
 */
 
@@ -83,20 +84,27 @@ const score_font = new PIXI.TextStyle( {
 //load static assets and run the `setup` function when it's done
 PIXI.Loader.shared
  .add("assets/bg.png")
- .add("assets/titlescreen.png");
+ .add("assets/titlescreen.png")
+ .add("assets/tetronimos/Larry.png");
 
 
 //const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
 const bg = PIXI.Sprite.from('assets/bg.png');
 
+//const hold_visual = PIXI.Sprite.from('assets/tetronimos/Larry.png');
+
 let currentState = state.TITLE;
 
 // Game container to hold different elements
 const gameContainer = new PIXI.Container();
+gameContainer.isLayer = true;
+gameContainer.zIndex = 1;
 app.stage.addChild(gameContainer);
 
 // UI container for buttons and text
 const uiContainer = new PIXI.Container();
+uiContainer.isLayer = true;
+uiContainer.zIndex = 0;
 app.stage.addChild(uiContainer);
 
 // Visual constants and derived constants
@@ -232,24 +240,43 @@ function setupPlayfield() {
 
    score_text.position.set(bg.position);
 
+  
+
    gameContainer.addChild(bg);
 
    score_offset_x = w * 1/4 + bg.position.x;
    highscore_offset_y = bg.position.y - h * 1.97/5;
    score_offset_y = bg.position.y - h * 1.025/5;
 
-   let hold_button = new PIXI.Graphics();
+   hold_button = new PIXI.Graphics();
    hold_button.beginFill(0x000000, 1);
-   hold_button.drawRect(screenWidth - x_offset - (w/4), screenHeight - y_offset - (h/4.5), 250 * scale, 250 * scale);
+   hold_button.drawRect(0, 0, 250 * scale, 250 * scale);
+   let hv_pos_x = (screenWidth - x_offset - (w/4));
+   let hv_pos_y = (screenHeight - y_offset - (h/4.5));
+   hold_button.position.x = hv_pos_x - (hold_button.width/2);
+   hold_button.position.y = hv_pos_y - (hold_button.height/2);
+
    hold_button.endFill();
-   hold_button.position.x -= hold_button.width/2;
-   hold_button.position.y -= hold_button.height/2;
+  // hold_button.position.x -= hold_button.width/2;
+  // hold_button.position.y -= hold_button.height/2;
+   
+   
+
 
    hold_button.renderable = false;
    hold_button.interactive = true;
    hold_button.buttonMode = true;
    hold_button.on('pointerdown', () => {input[5] = 1});
    uiContainer.addChild(hold_button);
+
+   let hold_visual = PIXI.Sprite.from('assets/tetronimos/Larry.png')
+   hold_visual.anchor.set(0.5);
+   hold_visual.position.x = hv_pos_x;
+   hold_visual.position.y = hv_pos_y + hold_button.height/8;
+    uiContainer.addChild(hold_visual);
+   // console.log(hold_button.pivot);
+
+    
 
 
    update_score();
@@ -695,6 +722,8 @@ function updatePlaying(delta) {
            current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
            current_piece_y = 1;
            current_rotation_index = 0;
+           
+
             }  
            input[5] = 0;
         }   
