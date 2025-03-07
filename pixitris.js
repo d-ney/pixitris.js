@@ -7,11 +7,9 @@ level indicator text
 ***fix smileys not spawning on long block
 new level notification
 better score font
-BUG: Pushing a piece left when there's something blocking it from completing move to left, piece gets stuck
+***BUG: Pushing a piece left when there's something blocking it from completing move to left, piece gets stuck
 
 */
-
-
 /*============================
   PIXI APPLICATION CONFIGURATION
 =============================*/
@@ -28,12 +26,6 @@ const options = {
     ROUND_PIXELS: true
 };
 
-// Configure global PIXI settings
-PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
-const app = new PIXI.Application(options);
-app.renderer.view.style.display = "block";
-document.body.appendChild(app.view);
-app.ticker.add(update);
 
 
 // Initialize fonts
@@ -62,6 +54,14 @@ window.WebFontConfig = {
   GAME CONSTANTS & INITIAL STATE
 =============================*/
 
+// Configure global PIXI settings
+PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+const app = new PIXI.Application(options);
+app.renderer.view.style.display = "block";
+document.body.appendChild(app.view);
+app.ticker.add(update);
+
+
 const state = {
     TITLE: 'title',
     PLAYING: 'playing',
@@ -81,11 +81,26 @@ const score_font = new PIXI.TextStyle( {
   });
 
 // Loading constant assets
-//load static assets and run the `setup` function when it's done
+//load static assets
 PIXI.Loader.shared
  .add("assets/bg.png")
  .add("assets/titlescreen.png")
- .add("assets/tetronimos/Larry.png");
+ .add("assets/block/block_g.png")
+ .add("assets/block/block_db.png")
+ .add("assets/block/block_b.png")
+ .add("assets/block/block_l.png")
+ .add("assets/block/block_o.png")
+ .add("assets/block/block_p.png")
+ .add("assets/block/block_pi.png")
+ .add("assets/block/block_r.png");
+
+//  const texture_Larry =  PIXI.Assets.load("assets/tetronimos/Larry.png");
+//  const texture_Luigi =  PIXI.Assets.load("assets/tetronimos/Luigi.png");
+//  const texture_Stan =  PIXI.Assets.load("assets/tetronimos/Stan.png");
+//  const texture_Sully =  PIXI.Assets.load("assets/tetronimos/Sully.png");
+// const texture_Terry =  PIXI.Assets.load("assets/tetronimos/Terry.png")
+// const texture_Wah =  PIXI.Assets.load("assets/tetronimos/Wah.png")
+// const texture_Zulu =  PIXI.Assets.load("assets/tetronimos/Zulu.png")
 
 
 //const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
@@ -106,6 +121,8 @@ const uiContainer = new PIXI.Container();
 uiContainer.isLayer = true;
 uiContainer.zIndex = 0;
 app.stage.addChild(uiContainer);
+
+let hold_visual = PIXI.Sprite.from("assets/tetronimos/Larry.png");
 
 // Visual constants and derived constants
 const field_width = 12;
@@ -269,12 +286,12 @@ function setupPlayfield() {
    hold_button.on('pointerdown', () => {input[5] = 1});
    uiContainer.addChild(hold_button);
 
-   let hold_visual = PIXI.Sprite.from('assets/tetronimos/Larry.png')
+   
    hold_visual.anchor.set(0.5);
    hold_visual.position.x = hv_pos_x;
    hold_visual.position.y = hv_pos_y + hold_button.height/8;
-    uiContainer.addChild(hold_visual);
-   // console.log(hold_button.pivot);
+   hold_visual.renderable = false;
+   uiContainer.addChild(hold_visual);
 
     
 
@@ -671,34 +688,34 @@ function updatePlaying(delta) {
     if (input[0]){
             while(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x, current_piece_y + 1)){
                 current_piece_y += 1;
-                //console.log("left pressed");
             }
+
             input[0] = 0;
             input[4] = 0;
         }
     else if(input[1]){
             if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x, current_piece_y + 1)){
                 current_piece_y += 1;
-                //console.log("left pressed");
-                input[1] = 0;
-                input[4] = 0;
             }
+
+            input[1] = 0;
+            input[4] = 0;
         }
     else if(input[2]){
-                if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x - 1, current_piece_y)){
-                    current_piece_x -= 1;
-                    //console.log("left pressed");
-                    input[2] = 0;
-                    input[4] = 0;
-                }
+            if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x - 1, current_piece_y)){
+                current_piece_x -= 1;    
+            }
+
+            input[2] = 0;
+            input[4] = 0;
         }
     else if(input[3]){
             if(check_piece_collision(current_piece_index, current_rotation_index, current_piece_x + 1, current_piece_y)){
                 current_piece_x += 1;
-                //console.log("right pressed");
-                input[3] = 0;
-                input[4] = 0;
             }
+
+            input[3] = 0;
+            input[4] = 0;
         }
     else if(input[4]){
            current_rotation_index = current_rotation_index + (check_piece_collision(current_piece_index, current_rotation_index + 1, current_piece_x, current_piece_y) || 3 * check_piece_collision(current_piece_index, current_rotation_index + 3, current_piece_x, current_piece_y));
@@ -711,17 +728,55 @@ function updatePlaying(delta) {
            //console.log("stash piece = " + stashed_piece + ", current piece = " + current_piece_index);
            
            let temp_index = stashed_piece;
+           
+          
+           
+
+           stashed_piece = current_piece_index;
 
            if(temp_index == -1)
             temp_index = Math.max(Math.floor(Math.random() * 100) % 7, 1);
 
-           stashed_piece = current_piece_index;
            current_piece_index = temp_index;
            stashed_this_turn = 1;
 
+           console.log(stashed_piece);
            current_piece_x = field_width / 2 - 2; //reset current piece vars to prep for new piece
            current_piece_y = 1;
            current_rotation_index = 0;
+        
+           hold_visual.renderable = true;
+           let hv_pos_x = hold_visual.position.x;
+           let hv_pos_y = hold_visual.position.y;
+          
+           uiContainer.removeChild(hold_visual);
+           const texture = (() => {
+            switch (stashed_piece) {
+                case 0: return 'assets/tetronimos/Larry.png';
+    
+                case 1: return 'assets/tetronimos/Zulu.png';
+        
+                case 2: return 'assets/tetronimos/Sully.png';
+        
+                case 3: return 'assets/tetronimos/Stan.png';
+        
+                case 4: return 'assets/tetronimos/Luigi.png';
+        
+                case 5: return 'assets/tetronimos/Wah.png';
+        
+                case 6: return 'assets/tetronimos/Terry.png';
+
+                default: return 0;
+               }
+           })();
+
+           hold_visual = new PIXI.Sprite.from(texture);
+           hold_visual.anchor.set(0.5);
+           hold_visual.position.x = hv_pos_x;
+           hold_visual.position.y = hv_pos_y;
+
+           uiContainer.addChild(hold_visual);
+           
            
 
             }  
@@ -820,6 +875,7 @@ function updatePlaying(delta) {
     //RENDERING========================================
     
         draw_pieces();
+       //print_field();
     
     }
 
@@ -985,20 +1041,19 @@ function erase_current_piece() {
   DEBUG FUNCTIONS
 =============================*/
 
-// function print_field() {
-//     let c_field = "";
-//     draw_current_piece();
-//     field.forEach((e, i) => {
-//         if( i % (field_width) == 0)
-//             c_field+='\n';
+function print_field() {
+    let c_field = "";
+    draw_current_piece();
+    field.forEach((e, i) => {
+        if( i % (field_width) == 0)
+            c_field+='\n';
 
-//         let x = (e == -8 ? " " : e)
-//         c_field+=x; 
-//     })
-//     console.log(c_field);
-//     erase_current_piece();
-// }
-
+        let x = (e == -8 ? " " : e)
+        c_field+=x; 
+    })
+    console.log(c_field);
+    erase_current_piece();
+}
 
 
 
