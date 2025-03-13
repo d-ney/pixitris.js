@@ -94,19 +94,10 @@ PIXI.Loader.shared
  .add("assets/block/block_pi.png")
  .add("assets/block/block_r.png");
 
-//  const texture_Larry =  PIXI.Assets.load("assets/tetronimos/Larry.png");
-//  const texture_Luigi =  PIXI.Assets.load("assets/tetronimos/Luigi.png");
-//  const texture_Stan =  PIXI.Assets.load("assets/tetronimos/Stan.png");
-//  const texture_Sully =  PIXI.Assets.load("assets/tetronimos/Sully.png");
-// const texture_Terry =  PIXI.Assets.load("assets/tetronimos/Terry.png")
-// const texture_Wah =  PIXI.Assets.load("assets/tetronimos/Wah.png")
-// const texture_Zulu =  PIXI.Assets.load("assets/tetronimos/Zulu.png")
-
 
 //const titlescreen = PIXI.Sprite.from('assets/titlescreen.png');
 const bg = PIXI.Sprite.from('assets/bg.png');
 
-//const hold_visual = PIXI.Sprite.from('assets/tetronimos/Larry.png');
 
 let currentState = state.TITLE;
 
@@ -139,6 +130,8 @@ let y_offset = (screenHeight);
 
 let block_queue = [];
 let smiley_queue = [];
+
+
 
 
 
@@ -256,6 +249,7 @@ function setupPlayfield() {
    y_offset = z - h/2;
 
    score_text.position.set(bg.position);
+   level_text.position.set(bg.position);
 
   
 
@@ -264,6 +258,7 @@ function setupPlayfield() {
    score_offset_x = w * 1/4 + bg.position.x;
    highscore_offset_y = bg.position.y - h * 1.97/5;
    score_offset_y = bg.position.y - h * 1.025/5;
+   level_offset_y = bg.position.y - h * 0.1/5;
 
    hold_button = new PIXI.Graphics();
    hold_button.beginFill(0x000000, 1);
@@ -293,10 +288,8 @@ function setupPlayfield() {
    hold_visual.renderable = false;
    uiContainer.addChild(hold_visual);
 
-    
-
-
    update_score();
+   update_level();
  
 
 }
@@ -503,6 +496,8 @@ let total_pieces = 0;
 let gravity_interval = 180;
 let rotates = 0;
 let cleared_lines = [];
+let level = 1;
+let level_count = 1;
 
 let stashed_piece = -1;
 let stashed_this_turn = 0;
@@ -515,13 +510,16 @@ if(highscore == null) localStorage.setItem("highscore", 0);
 
 let score_text = new PIXI.Text(`${score}` , score_font);
 let highscore_text = new PIXI.Text(`${highscore}` , score_font);
+let level_text = new PIXI.Text(`${level}`, score_font);
 
 uiContainer.addChild(score_text);
 uiContainer.addChild(highscore_text);
+uiContainer.addChild(level_text);
 
 let score_offset_x = 0;
 let score_offset_y = 0;
 let highscore_offset_y = 0;
+let level_offset_y = 0;
 
 // CURRENT PIECE STATE=================================
 let current_piece_index = Math.floor(Math.random()  * 100) % 7;
@@ -805,10 +803,10 @@ function updatePlaying(delta) {
 
           total_pieces += 1;
           
-          //every 10 pieces, increase the difficulty by decrementing the gravity interval,
-          if(total_pieces % 10 == 0)
+          //every 10 completed lineslines, increase the difficulty by decrementing the gravity interval,
+          if(level_count % 10 == 0)
             if(gravity_interval > 10)
-                gravity_interval--;
+                gravity_interval -= 10;
 
 
           //check if any lines have been completed,
@@ -824,15 +822,27 @@ function updatePlaying(delta) {
                         }
                     
 
-                    //console.log("cleared lines = " + cleared_lines.length);
+                    
                     cleared_lines.push(current_piece_y + y);
+                    console.log("cleared lines = " + cleared_lines.length);
+
                 }
             }
           }
 
           //manage score
           score += 25;
-          if(cleared_lines.length > 0) score += Math.pow(2, cleared_lines.length) * 100
+
+          if(cleared_lines.length > 0){ 
+            score += Math.pow(2, cleared_lines.length) * 100; 
+            level_count += cleared_lines.length;
+           
+          }
+          console.log(level_count)
+          if(level_count % 10 == 0){
+            level++;
+            update_level();
+          }
           update_score();
         
           //console.log(smiley_queue);
@@ -937,6 +947,21 @@ function update_score() {
     
 
     
+}
+
+function update_level() {
+     //update current level
+     uiContainer.removeChild(level_text);
+
+     level_text = new PIXI.Text( `${level}`, score_font);  
+     level_text.position.x = score_offset_x;
+     level_text.position.y = level_offset_y;
+ 
+     level_text.scale.set(scale);
+     console.log(level);
+ 
+     uiContainer.addChild(level_text);
+
 }
 
 //PIECE RENDERING========================================
