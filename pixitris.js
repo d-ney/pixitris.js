@@ -712,9 +712,6 @@ function updatePlaying(delta) {
         }
     else if(input[5]) {
         if(!stashed_this_turn){
-           //console.log("in stash piece");
-
-           //console.log("stash piece = " + stashed_piece + ", current piece = " + current_piece_index);
            
            let temp_index = stashed_piece;
            
