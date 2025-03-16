@@ -217,10 +217,6 @@ function setupTitle() {
     titlescreen.on('pointerdown', (pointer) => transitionToPlaying());
     gameContainer.addChild(titlescreen);
     
-
-    //app.renderer.plugins.interaction.on("pointerup", (pointer) => {transitionToPlaying();})
-
-    console.log("setupTitle called");
 }
 
 function setupPlayfield() {
@@ -512,9 +508,6 @@ let score_text = new PIXI.Text(`${score}` , score_font);
 let highscore_text = new PIXI.Text(`${highscore}` , score_font);
 let level_text = new PIXI.Text(`${level}`, score_font);
 
-uiContainer.addChild(score_text);
-uiContainer.addChild(highscore_text);
-uiContainer.addChild(level_text);
 
 let score_offset_x = 0;
 let score_offset_y = 0;
@@ -527,8 +520,6 @@ let current_rotation_index = 0;
 let current_piece_x = field_width / 2 - 2; //represents default position where pieces will be spawned
 let current_piece_y = 1;
 let grace_period = 0;
-
-
 
 
 /*============================
