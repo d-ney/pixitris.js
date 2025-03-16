@@ -111,7 +111,12 @@ app.stage.addChild(gameContainer);
 const uiContainer = new PIXI.Container();
 uiContainer.isLayer = true;
 uiContainer.zIndex = 0;
+
+const messageSystem = createMessageSystem(uiContainer);
+
 app.stage.addChild(uiContainer);
+
+
 
 let hold_visual = PIXI.Sprite.from("assets/tetronimos/Larry.png");
 
@@ -130,9 +135,6 @@ let y_offset = (screenHeight);
 
 let block_queue = [];
 let smiley_queue = [];
-
-
-
 
 
 //initialize field and field borders
@@ -283,7 +285,7 @@ function setupPlayfield() {
    hold_visual.position.y = hv_pos_y + hold_button.height/8;
    hold_visual.renderable = false;
    uiContainer.addChild(hold_visual);
-
+   messageSystem.showMessage("Game Start!", MessagePresets.SCORE);
    update_score();
    update_level();
  
@@ -405,6 +407,8 @@ function transitionToTitle() {
 
 function transitionToPlaying() {
     currentState = state.PLAYING;
+    // Basic message
+   
     setupPlayfield();
 }
 
