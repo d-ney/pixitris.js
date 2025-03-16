@@ -991,6 +991,7 @@ function draw_pieces() {
 
     block_queue.forEach(block => {
         gameContainer.removeChild(block);
+        block.destroy();
     });
 
     block_queue = [];
